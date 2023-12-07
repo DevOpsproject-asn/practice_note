@@ -1,0 +1,8 @@
+What is EFK Stack ?
+FK stack is a collection of three open-source products
+        ElasticSearch , Fluentd and Kibana
+> EFK stack provides centralized logging in order to identify problems with servers or applications
+> It allows you to search all the logs in a single place 
+       E : Elastic Search -> For storing logs ( Log Lake)
+	   F : Fluentd -> For shipping,processing and storing logs 
+	   K : Kibana -> Visualization Tool to monitor Logs

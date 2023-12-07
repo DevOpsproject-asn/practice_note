@@ -1,0 +1,76 @@
+TOday project 
+-----------------
+
+http://13.234.66.158:8081/repository/newmavenjob-release/
+http://13.234.66.158:8081/repository/newmavenjob-snapshot/
+
+java-web-app-k8s.yaml
+
+node {
+    def mavenHome = tool name: "maven3.9.2"
+    def PROJECT_ID = 'k8s-cluster-387712'
+    def CLUSTER_NAME = 'cluster-1'
+    def LOCATION = 'us-east1'
+    def CREDENTIALS_ID = 'k8s-cluster-387712'
+    stage('scmcheckpout'){
+       git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('buildthecode'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('build the docker image'){
+        sh "docker build -t cloudocker123456/gke-image ."
+    }
+    stage('dockerlogin&push'){
+        withCredentials([string(credentialsId: 'dockerhub_cred', variable: 'dockerhub')]) {
+         sh "docker login -u cloudocker123456 -p ${dockerhub}"
+        }
+        sh "docker push cloudocker123456/gke-image"
+    }
+    stage ('k8sapplyongke'){
+        step([$class: 'KubernatesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'java-web-app-k8s.yaml'])
+    }
+}
+
+pipeline {
+ agent any 
+ tools {
+  maven 'maven3.9.2'
+  }
+ enviroment {
+   PROJECT_ID = 'k8s-cluster-387712'
+   CLUSTER_NAME = 'cluster-1'
+   LOCATION = 'us-east1'
+   CREDENTIALS_ID = 'k8s-cluster-387712'
+   }
+ stages{
+   stage('scm checkout'){
+     steps {
+	   git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+	   }
+	 }
+   stage('buildcode'){
+     steps {
+	  sh "mvn clean package"
+	  }
+	 }
+   stage('dockerimagecreate'){
+     steps {
+	   sh "docker build -t cloudocker123456/gkeimagecrate ."
+	   }
+	  }
+   stage('dockerlogin&push'){
+      steps {
+	    withCredentials([string(credentialsId: 'dockerhub_cred', variable: 'dockerhub')]) {
+         sh "docker login -u cloudocker123456 -p ${dockerhub}"
+        }
+        sh "docker push cloudocker123456/gkeimagecreate"
+	   }
+    }
+   stage('k8sapplytogke'){
+      steps{
+        step([$class: 'KubernatesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'java-web-app-k8s.yaml'])
+		}
+	 }
+  }
+}

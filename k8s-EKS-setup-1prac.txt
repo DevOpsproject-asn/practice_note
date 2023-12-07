@@ -1,0 +1,134 @@
+EKS 
+--------
+VPC ceated with the CIDR range  10.0.0.0/24
+We need to create the subbnets  10.0.0.0/26 
+                                10.0.0.64/26
+								10.0.0.128/26
+								10.0.0.192/26
+We need to IGW and assiciate with public subnet
+We need to create NAT and assocoiate with Private subnet
+Wen need create two Route table , one for public and another for private connection
+
+
+aws eks update-kubeconfig --region ap-south-1 --name Demo-EKS
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+accesskey 
+AKIAVAMEF7PG5KBHPYAF
+
+secretkey
+2hTFCpY66o3dmLCHgv5ZKgR5/gyXSqMEzXEZiCpe
+
+2hTFCpY66o3dmLCHgv5ZKgR5/gyXSqMEzXEZiCpe
+
+.kube/config
+----------------
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMvakNDQWVhZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJek1EVXdPREUyTXpFd01Gb1hEVE16TURVd05URTJNekV3TUZvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBT1Z3CkxjZVdlN3FBWjJzbVJjeXBnZmFFTTJ3ajZtdEVWZU5ZWkRGMDdFVnZmVWxVZCtPTjJVbGxvSEg0UGpMczBvTEIKdkhuUG9uL2k0R2dVRXM1TnFwTm9FUmRXRExHSms2VDVvTUNiUjNVMGdNUTZGL3piYnVza3pHbnJZd1RUeitBMAoxM1JWdUVQTEhkVU15VVZhb08zYkJ0cDFZdnMrZmZPeDZMNlVhWGtQZEdacS95TnhJMXNuNkpITHdsdUZqdm1zCm5WTGtMc0llNm5QQlRGblo3bGh0VzFxb0QxbGtLcW85WVpNUlJGWWhSTDg3MWMxaC8ybUJpckF5dDBjeitSNVMKa2RMSi9xNk1wZTJvVzA3S054V1h0WGgyYlJMYkk2eG9RZ2o3N0dhWVJPZHNTdkVNQmc1eVM4UjkraXpzSUl4WQorR3IySUlIU2Ryd3hKWGFFaHZzQ0F3RUFBYU5aTUZjd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZPRHJzZGJIWFdPZ3FOM0NzeVMxaHMvOTkvcGZNQlVHQTFVZEVRUU8KTUF5Q0NtdDFZbVZ5Ym1WMFpYTXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBTE4zWlZzbWMyT3k5TjF5eUR1SQpicVcvb3pzK1JmR0ZvY2RWQXpWdTIrRTdpZGlKZE1ZNUZtQ1BnNERrbWhuWm5XTDQ3VDVkZDJTU3RGWVRSMFhTCjN0WGRoQ1A3VEhpV294U2ZGY2FCaWpMb0NkbTZWd0gwRXNjTkRWV241YTR5UDdzZ3JQaE9wR08vSzh2YmdWbC8KYlNyaDlrVGFhTkg2dFVWYjVDRDBxdStUT1VzR0FzMXVFLy9zWEN4THdQSGw5VEJBbEdtRmc2S2RFR2NkbmZ0bgpQdFMyWWFvOTNReXg4V291NTVQa1RXMzhBb3ZsNTJwbDQvRm1rdXIyQStla1k3UTJMOHk5dnFOTFNvNlFDMzN3ClV3K2QwcjlEdGNhekw1cHhKVVFxdzBwNWJwUGRXOFJzdVBiMnhiZE01ZVN2YkxQTjg1NjJiVkkzemJDVEppZXgKSXU0PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://3F1BE98ECF9F67C97ADD97EB17DD918D.gr7.ap-south-1.eks.amazonaws.com
+  name: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+contexts:
+- context:
+    cluster: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+    user: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+  name: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+current-context: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+kind: Config
+preferences: {}
+users:
+- name: arn:aws:eks:ap-south-1:344411470797:cluster/Demo-EKS
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - --region
+      - ap-south-1
+      - eks
+      - get-token
+      - --cluster-name
+      - Demo-EKS
+      - --output
+      - json
+      command: aws
+
+aws eks describe-addon-versions --addon-name aws-ebs-csi-driver
+kubectl apply -k "github.com kubernetes sigs/ aws ebs csi driver/deploy/ kubernetes /overlays/stable/?ref=release 1.12"
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebappdeployment
+spec:
+  replicas: 2
+  revisionHistoryLimit: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: javawebapp
+  template:
+    metadata:
+      name: javawebapppod
+      labels:
+        app: javawebapp
+    spec:
+      containers:
+      - name: javawebappcontainer
+        image: cloudocker123456/java-web-app-docker-k8s:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1
+            memory: 1Gi
+        livenessProbe:
+          httpGet:
+            path: /java-web-app
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+	  timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /java-web-app
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+----------------------------------
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springappdeployment
+  namespace: test-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springapp
+  template:
+    metadata:
+      name: springapppod
+      labels:
+        app: springapp
+    spec:
+      containers:
+      - name: springappcontainer
+        image: cloudocker123456/java-web-app-k8s:7
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi

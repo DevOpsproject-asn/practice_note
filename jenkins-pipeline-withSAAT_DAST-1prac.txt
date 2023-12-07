@@ -1,0 +1,163 @@
+pipeline {
+  agent any 
+  tools {
+    maven 'Maven'
+  }
+  stages {
+    stage ('Initialize') {
+      steps {
+        sh '''
+                    echo "PATH = ${PATH}"
+                    echo "M2_HOME = ${M2_HOME}"
+            ''' 
+      }
+    }
+    
+    stage ('Check-Git-Secrets') {
+      steps {
+        sh 'rm trufflehog || true'
+        sh 'docker run gesellix/trufflehog --json https://github.com/cehkunal/webapp.git > trufflehog'
+        sh 'cat trufflehog'
+      }
+    }
+    
+    stage ('Source Composition Analysis') {
+      steps {
+         sh 'rm owasp* || true'
+         sh 'wget "https://raw.githubusercontent.com/cehkunal/webapp/master/owasp-dependency-check.sh" '
+         sh 'chmod +x owasp-dependency-check.sh'
+         sh 'bash owasp-dependency-check.sh'
+         sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
+        
+      }
+    }
+    
+    stage ('SAST') {
+      steps {
+        withSonarQubeEnv('sonar') {
+          sh 'mvn sonar:sonar'
+          sh 'cat target/sonar/report-task.txt'
+        }
+      }
+    }
+    
+    stage ('Build') {
+      steps {
+      sh 'mvn clean package'
+       }
+    }
+    
+    stage ('Deploy-To-Tomcat') {
+            steps {
+           sshagent(['tomcat']) {
+                sh 'scp -o StrictHostKeyChecking=no target/*.war ubuntu@13.232.202.25:/prod/apache-tomcat-8.5.39/webapps/webapp.war'
+              }      
+           }       
+    }
+    
+    
+    stage ('DAST') {
+      steps {
+        sshagent(['zap']) {
+         sh 'ssh -o  StrictHostKeyChecking=no ubuntu@13.232.158.44 "docker run -t owasp/zap2docker-stable zap-baseline.py -t http://13.232.202.25:8080/webapp/" || true'
+        }
+      }
+    }
+    
+  }
+}
+
+
+---------------------------------------------------
+node {
+    def mavenHome = tool name: "maven3.9.1"
+    stage('scm code checkout'){
+        git credentialsId: 'jenkins-git', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('mavenbuild'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('code Quality check'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage('codesendtoartifact'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+    stage('deploy to tomcat'){
+       sshagent(['tomcat-jenkinscred']){
+         sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.7.78:/opt/tomcat/webapps/"
+        }
+    }
+}    
+
+----------------------------------------
+node {
+    def mavenHome = tool name: "maven3.9.1"
+    stage('GetcodeSCM') {
+        git credentialsId: 'jenkins-git', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('buildmaven'){
+       sh "${mavenHome}/bin/mvn clean package" 
+    }
+    stage('sourcecodequality'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage('artifactcodetonexus'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+    stage('deploy to tomcat'){
+        sshagent(['J-T']){
+         sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.7.78:/opt/tomcat/webapps/"
+     }
+    }     
+}
+
+--------------------------------------------------
+node {
+    def buildNumber = BUILD_NUMBER
+    stage('scmcodechecking'){
+        git credentialsId: 'jenkins-git', url: 'https://github.com/cloudtechnoli/spring-boot-mongo-docker.git'
+    }
+    stage('bulid'){
+        def mavenHome = tool name: "maven3.9.1"
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('docker build the image'){
+        sh " docker build -t cloudocker123456/spring-boot-mongo ."
+    }
+    stage('push to dockerhub'){
+        withCredentials([string(credentialsId: 'DOCKERHUB_PD', variable: 'DockerHUB')]){
+        sh "docker login -u cloudocker123456 -p ${dockerHUB} "
+        }
+        sh "docker push cloudocker123456/spring-boot-mongo"
+    }
+    stage('K8s build number'){
+	   sh "sed -i 's/VERSION/${buildNumber}/g' k8s-springboot.yaml"
+	   }
+	stage('k8s apply'){
+	   sh "kubectl apply -f k8s-springboot.yaml"
+	   }
+}
+-----------------------------------------
+
+node {
+    def mavenHome = tool name: "maven3.9.2"
+    stage('scmcheckout'){
+        git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('buildthecode'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('dockerbuild'){
+        sh "docker build -t cloudocker123456/pipeline-eks ."
+    }
+    stage('dockerlogin & push'){
+        withCredentials([string(credentialsId: 'dockerhub_cred', variable: 'dockerhub_cred')]) {
+        sh "docker login -u cloudocker123456 -p ${dockerhub_cred}"
+         }
+        sh "docker push cloudocker123456/pipeline-eks" 
+    }
+    stage('k8sapply'){
+        sh "kubectl apply -f java-web-app-k8s.yaml"
+    }
+}

@@ -1,0 +1,180 @@
+Terraform Installation
+-----------------------
+step-1 : Make EC2 instance and install terraform package
+yum update -y
+yum install unzip wget tar vim -y
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform
+
+Redhat & centos
+-----------
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo yum -y install terraform
+
+terraform version to check
+-----------------
+terraform -version
+terraform -v  or terraform version
+
+[root@ip-172-31-43-46 ~]# terraform --help
+Usage: terraform [global options] <subcommand> [args]
+
+The available commands for execution are listed below.
+The primary workflow commands are given first, followed by
+less common or more advanced commands.
+
+Main commands:
+  init          Prepare your working directory for other commands
+  validate      Check whether the configuration is valid
+  plan          Show changes required by the current configuration
+  apply         Create or update infrastructure
+  destroy       Destroy previously-created infrastructure
+
+All other commands:
+  console       Try Terraform expressions at an interactive command prompt
+  fmt           Reformat your configuration in the standard style
+  force-unlock  Release a stuck lock on the current workspace
+  get           Install or upgrade remote Terraform modules
+  graph         Generate a Graphviz graph of the steps in an operation
+  import        Associate existing infrastructure with a Terraform resource
+  login         Obtain and save credentials for a remote host
+  logout        Remove locally-stored credentials for a remote host
+  metadata      Metadata related commands
+  output        Show output values from your root module
+  providers     Show the providers required for this configuration
+  refresh       Update the state to match remote systems
+  show          Show the current state or a saved plan
+  state         Advanced state management
+  taint         Mark a resource instance as not fully functional
+  test          Experimental support for module integration testing
+  untaint       Remove the 'tainted' state from a resource instance
+  version       Show the current Terraform version
+  workspace     Workspace management
+
+Global options (use these before the subcommand, if any):
+  -chdir=DIR    Switch to a different working directory before executing the
+                given subcommand.
+  -help         Show this help output, or the help for a specified subcommand.
+  -version      An alias for the "version" subcommand.
+[root@ip-172-31-43-46 ~]#
+
+--------------------------------------------------------------------------------------------------
+IAM user acess key 
+AKIAVAMEF7PGZ5OUFY6U
+secrete key
+K3sa8reCs46RSt1Aj3wIC5aifm42q82SLyhJDZHY
+
+nayak user
+acess key  AKIAVAMEF7PG2FBTGD7K
+secrete key  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
+First terraform script:
+-------------------------
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAVAMEF7PG2FBTGD7K"
+  secret_key = "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"
+}
+resource "aws_instance" "AWSserver" {
+  ami             = "ami-0fdea1353c525c182"
+  instance_type   = "t2.micro"
+  key_name        = "serverkey"
+  security_groups = ["launch-wizard-13"]
+  tags = {
+    Name = " Redhat server by terraform"
+  }
+}
+
+terraform init    
+terraform fmt 
+terraform validate
+terraform plan 
+terraform apply
+terraform apply -auto-approve
+terraform destroy
+
+---------------------------------
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAVAMEF7PG2FBTGD7K"
+  secret_key = "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"
+}
+resource "aws_instance" "AWSserver" {
+  ami             = "ami-0fdea1353c525c182"
+  instance_type   = "t2.micro"
+  key_name        = "serverkey"
+  security_groups = ["launch-wizard-13"]
+  tags = {
+    Name = " Redhat by terraform"
+  }
+}
+---------------------------------------
+Multi instance ( count)
+``````````````
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAVAMEF7PG2FBTGD7K"
+  secret_key = "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"
+}
+resource "aws_instance" "AWSserver" {
+  count = "4"
+  ami             = "ami-0fdea1353c525c182"
+  instance_type   = "t2.micro"
+  key_name        = "serverkey"
+  security_groups = ["launch-wizard-13"]
+  tags = {
+    Name = " Redhat by terraform"
+  }
+}
+-----------------------------------
+provider.tf
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAVAMEF7PG2FBTGD7K"
+  secret_key = "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"
+}
+main.tf
+resource "aws_instance" "AWSserver" {
+  ami             = "ami-0fdea1353c525c182"
+  instance_type   = "t2.micro"
+  key_name        = "serverkey"
+  security_groups = ["launch-wizard-13"]
+  tags = {
+    Name = " Redhat by terraform Avinna"
+  }
+}
+---------------------------------
+var.tf
+variable "ami" {
+   description = "Amazon machine image value"
+   default = "ami-0fdea1353c525c182"
+}
+variable "instance_type" {
+   description = "Amazon instance type, like t2.micro,t2.medium..."
+   default = "t2.micro"
+}
+variable "instances" {
+   description = "Total number of Resources"
+}
+main.tf
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAVAMEF7PG2FBTGD7K"
+  secret_key = "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"
+}
+resource "aws_instance" "AWSserver" {
+  count           = "${var.instances}"
+  ami             = "${var.ami}"
+  instance_type   = "${var.instance_type}"
+  key_name        = "serverkey"
+  security_groups = ["launch-wizard-13"]
+  tags = {
+    Name = " Redhat by terraform var -${count.index}"
+  }
+}
+------------------------------------
+
+
+
+

@@ -1,0 +1,50 @@
+    ---------------Docker ------------------
+	----------------------------------------
+docker network 
+-----------------
+Docker has three network mode
+ 1)None
+ ----
+ This mode will not configure any IP for the container and doesn’t have any access to the external network as well as for other containers.
+ It does have the loopback address and can be used for running batch jobs.
+ docker run -it --network=none ubuntu:14.04 /bin/bash
+  ifconfig
+  
+  docker inspect 5001854304b8 | grep -i ipaddr
+  
+  2)Host
+  ------
+  In this mode container will share the host’s network stack and all interfaces from the host will be available to the container.
+  The container’s host name will match the host name on the host system
+  
+  docker run -it --net=host ubuntu:14.04 /bin/bash
+  hostname
+  ip addr | grep -A 2 eth0 ( to check ip address of the host machine)
+  ip addr | grep -A 2 docker0 ( to check docker ip address)
+  
+  
+  In host and none mode are not configured directly but default bridge network can be configured as well as create your own user-defined bridge networks.
+  
+  3) Bridge mode
+  ---------------
+  It is the Docker default networking mode which will enable the connectivity to the other interfaces of the host machine as well as among containers.
+  docker run -it --network=bridge ubuntu:14.04 /bin/bash  ( container run with bridge network mode)
+  ifconfig 
+  ip a | grep eth0
+  
+  Bridge network: Bridge is the default network in docker which is also called as docker0. 
+  It is the default network that bridges through the NAT firewall to the physical that your host is connected to. 
+  But, we don't care about it as all the containers will attach to this network and worked.
+  
+  Host Network: is a special network which skips the virtual networking of docker and attach the container directly to host interface. 
+  It's really not recommended but, in certain situations, can improve the performance of high throughput networking and in other,
+  you will loose out of few benefits of containerization.
+  
+  None Network: is kind of equivalent to having an interface on your machine that's not attched to anything, 
+  but we can create our own. The none network adds a container to a container-specific network stack. That container lacks a network interface.
+  
+  docker network inspect host ( to check all details about host network mode)
+  docker network inspect bridge ( to check all details about bridge network mode)
+  docker network inspect none   ( to check all details about none network mode)
+  
+------------------------------------------------------------------------------------

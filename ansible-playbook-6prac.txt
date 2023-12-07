@@ -1,0 +1,23 @@
+---
+- name: Update Repository on Host Server
+  hosts: your_host_server
+  become: true  # This enables privilege escalation
+
+  tasks:
+    - name: Update APT repository (for Ubuntu/Debian)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian'
+
+    - name: Update YUM repository (for CentOS/RHEL)
+      yum:
+        name: '*'
+        state: latest
+      when: ansible_os_family == 'RedHat'
+
+    # Add more package managers and commands as needed for other systems
+
+  handlers:
+    - name: Reboot if required
+      reboot:
+      when: ansible_reboot_pending | bool

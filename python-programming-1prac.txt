@@ -1,0 +1,67 @@
+Python complete scripting course 
+------------------------------------
+Application areas of ptyhon
+--------
+> Now a days it is becoming more and more popular for doing
+            > Web-Application Development
+			> API Development
+			> Desktop GUI Application Development
+			> Data Analysis
+			> AI ( Artifical Intelligence)
+			> Web Scraping & Text Processing 
+			> Selenium Testing with Python
+			> Automation
+Why python is popular ?
+> Python is easy to learn because of its simplke syntaxes.
+> Many modules(pre-defined and third party)
+> Code length is very short because of third party modules.
+> Platform Independent.
+> Supports both functional and oops concepts
+
+Course Structure
+-----------------
+Core Python 
+ ( Basics of Python, Modules, Libraries, Packages and Functions)
+Advanced Python ( OOPs)
+
+What is Python ?
+> Python is a powerful multi-purpose programming language created by Guido van Rossum.
+Python Versions.
+  > they are :
+     > 2.x
+	 > 3.x
+Automate AWS Infracture Provisiong using boto3 
+-----------------------------------------------
+What is boto3 ?
+------------
+> Amazon Web Services (AWS) has become a leader in cloud computing.
+> We have different ways to Automate any task or To Automate AWS Infrasture provisioning.
+      >1. Shell Scrpting 
+	  >2. Python scripting 
+	        > (Thse two with AWS CLI commands)
+	  > Python scrpting with boto3.
+> Boto3 is the name of the Python open source SDK for AWS.
+> It allows you to directly create,update, and delete AWS resources from your python scripts.
+> It's complicated in many ways but it is rich SDK for AWS.
+> Boto3 is wriiten on top of bootcore which is a low-lvel interface to the AWS API.
+> Botocore is the basis for the AWS-CLI which is also written in python.
+> Compare to bootcore, boto3 contains a lot of great objects and methods to easily work with any AWS services.
+
+How to install boto3?
+ pip install boto3
+
+How to use boto3 for AWS Services ?
+
+Working with AWS services  using boto3
+
+vi list_s3bucket
+
+import boto3
+
+s3_ob=boto3.resource('s3')
+ec2_ob=boto3.resource('ec2')
+iam_ob=boto3.resource('iam')
+
+for each_b in s3_ob.bucket.all():
+print each_b
+

@@ -1,0 +1,29 @@
+AWS CodePipeLine ( CICD process )
+----------------------------------
+Resources uses on AWS are :  CodePipeline , Github/ codecommit, Elastic Beanstalk
+
+Elastic Beanstalk:
+Amazon Elastic Beanstalk is an easy-to-use service for deploying and scaling web applications and services developed with 
+Java, .NET, PHP, Node.js, Python, Ruby, Go, and Docker on familiar servers such as Apache, Nginx, Passenger, and IIS.
+Amazon Elastic Beanstalk
+End-to-end web application management.
+
+> Create an Elastic beanstalk server.
+cloudtechavinnawebsite.com
+
+mithuntechnology github link
+------------------------------
+https://github.com/MithunTechnologiesDevOps
+
+java installation link
+-------------------------
+https://mithuntechnologies-devops.blogspot.com/2020/02/java-installation-linux-mithun.html
+
+maven installation blog
+--------------------
+https://mithuntechnologies-devops.blogspot.com/2019/10/mavn-install-linux-server.html
+
+
+All tools url link
+----------------------------
+http://mithuntechnologies.com/devops/DevOpsToolsMithunTechnologies.html

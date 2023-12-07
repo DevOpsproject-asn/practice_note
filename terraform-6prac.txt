@@ -1,0 +1,63 @@
+Terraform :
+
+-------
+access key :  AKIAZSH7PIHFLBA4VYHM
+secret key :  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
+
+Ec2instance created by Terraform
+----------------------------------
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAZSH7PIHFLBA4VYHM"
+  secret_key = "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"
+}
+resource "aws_instance" "firstec2instance" {
+  ami             = "ami-0f5ee92e2d63afc18"
+  instance_type   = "t2.micro"
+  key_name        = "projectkey"
+  security_groups = ["launch-wizard-7"]
+  tags = {
+    Name = "terroaformcreated vm"
+  }
+}
+
+---------------------------------
+Local file store credentials deatils 
+
+provider "aws" {
+  region     = "ap-south-1"
+  profile    = "myaws"
+}
+resource "aws_instance" "firstec2instance" {
+  ami             = "ami-0f5ee92e2d63afc18"
+  instance_type   = "t2.micro"
+  key_name        = "projectkey"
+  security_groups = ["launch-wizard-7"]
+  tags = {
+    Name = "terroaformcreated vm"
+  }
+}
+
+---------------------------------------
+Vnet , subnet , Nic , ec2instance
+To create VPC and associate with subnet and the network interface  and then atatch network interface to Ec2 instance 
+----------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

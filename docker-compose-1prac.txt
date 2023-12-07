@@ -1,0 +1,113 @@
+Defautl name : docker-compose.yml or docker-compose.yaml
+docker-compose.yaml
+version: '3.1'
+services:
+  springboot:
+    image: cloudocker123456/springbootmongo:1
+	restart: always
+	container_name: springboot
+	environment: 
+	- MONGO_DB_HOSTNAME=mongo
+	- MONGO_DB_USERNAME=devdb
+	- MONGO_DB_PASSWORD=devdb@123
+	ports:
+	  - 8080:8080
+	depends_on:
+	  - mongo
+	networks:
+	- springappbridge
+  mongo:
+    image: mongo
+	container_name: springboot-mongo
+	environment: 
+	- MONGO_INITDB_ROOT_USERNAME=devdb
+	- MONGO_INITDB_ROOT_PASSWORD=devdb@123
+	volumes:
+	 - mongodbvol: /data/db
+	restart: always
+	networks:
+	- springappbridge
+voulmes:
+ mongodbvol:
+  driver: local
+
+docker-compose config (to check docker composefile)
+docker-compose up -d ( to create service/container)
+docker-compose down  ( to stop container )
+
+
+
+
+version: '3.1'
+services:
+  springboot:
+    image: dockerhandson/spring-boot-mongo:1
+    restart: always # This will be ignored if we deploy in docker swarm
+    container_name: springboot
+    environment:
+    - MONGO_DB_HOSTNAME=mongo
+    - MONGO_DB_USERNAME=devdb
+    - MONGO_DB_PASSWORD=devdb@123
+    ports:
+      - 8080:8080
+    depends_on:
+      - mongo
+    networks:
+    - springappbridge
+  mongo:
+    image: mongo
+    container_name: springboot-mongo
+    environment:
+    - MONGO_INITDB_ROOT_USERNAME=devdb
+    - MONGO_INITDB_ROOT_PASSWORD=devdb@123
+    volumes:
+      - mongodbvol:/data/db
+    restart: always
+    networks:
+    - springappbridge
+    
+volumes:
+  mongodbvol:
+    driver: local
+
+Commands
+# Syntax Check
+docker-compose config 
+# Create Services/Contianers
+docker-compose up -d  
+  
+# Remove Services/Contianers 
+docker-compose down
+-----------------------------------------------------
+Certificate attach to application which is running on K8s cluster pod 
+----------------------------------------------------------------------
+sudo apt update
+sudo apt install openssl  ( install openssl)
+
+openssl genpkey -algorithm RSA -out private.key (Generate Private Key)
+openssl req -new -key private.key -out certificate.csr ( Generate Certificate Signing Request (CSR)
+
+openssl x509 -req -days 365 -in certificate.csr -signkey private.key -out certificate.crt  --> Generate Self-Signed Certificate:
+
+kubectl create secret tls my-app-tls-secret --cert=path/to/certificate.crt --key=path/to/private.key
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+spec:
+  tls:
+    - hosts:
+        - my-app.example.com  # Replace with your domain
+      secretName: my-app-tls-secret
+  rules:
+    - host: my-app.example.com  # Replace with your domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-app-service
+                port:
+                  number: 80  # Replace with your application's port

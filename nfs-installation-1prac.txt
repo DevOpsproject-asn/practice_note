@@ -1,0 +1,27 @@
+NFS server - client configuration 
+---------------------------------
+https://www.tecmint.com/install-nfs-server-on-centos-8/
+
+       ls
+    2  yum update -y
+    3  yum install nfs-utils
+    4  systemctl start nfs-server.service
+    5  systemctl enable nfs-server.service
+    6  systemctl status nfs-server.service
+    7  vi /etc/nfs.conf
+    8  vi /etc/nfsmount.conf
+# mkdir -p  /mnt/nfs_shares/{Technical,k8s,ops}
+# mkdir  -p /mnt/backups
+# ls -l /mnt/nfs_shares/
+
+vi /etc/nfs.conf
+/mnt/nfs_shares/Technical  	172.31.35.227(rw,sync)
+/mnt/nfs_shares/k8s		10.20.10.0/24(rw,sync)
+/mnt/nfs_shares/ops		10.20.30.0/24(rw,sync)
+/mnt/backups				10.20.20.9/24(rw,sync,no_all_squash,root_squash)
+
+CKA exam
+--------
+https://www.itexams.com/exam/CKA
+
+https://k21academy.com/docker-kubernetes/cka-ckad-exam-questions-answers/

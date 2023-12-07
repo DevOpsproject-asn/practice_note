@@ -1,0 +1,27 @@
+Terraform
+-------------
+AKIAVAMEF7PGZ4PWGBUP - Acess key
+n4VmI1IpR+OYl5hv5VHENBa/K+K0ofIdvqDUO8bA  - secret key
+
+
+maven
+----
+/root/apache-maven-3.9.1/bin
+/opt/apache-maven-3.9.1/
+
+vi ~/bash-profile
+
+vi ~/.bash_profile
+
+export M2_HOME=/opt/apache-maven-3.9.0
+
+export PATH=$PATH:$M2_HOME/bin
+
+source ~/.bash_profile
+
+
+vi ~/.bash_profile
+
+export M2_HOME=/opt/apache-maven-3.9.1
+export PATH=$PATH:$M2_HOME/bin
+

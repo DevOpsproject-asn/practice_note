@@ -1,0 +1,212 @@
+Terraform Important 
+------------------
+How to destroy one specific resource from TF file in Terraform?
+Terraform destroy is a command that allows you to destroy either a full stack (based on your TF files), or single resources, using the -target option. You can even do:
+
+$ terraform state list
+$ terraform destroy -target RESOURCE_TYPE.NAME
+$ terraform destroy -target RESOURCE_TYPE.NAME -target RESOURCE_TYPE2.NAME
+$ terraform state list
+Option of skipping a resource while destroying terraform resources?
+
+$ terraform state list
+$ terraform destroy -target=RESOURCE_TYPE.NAME -target=RESOURCE_TYPE2.NAME
+$ terraform state list
+How to remove single resources, single instances of a resource, entire modules, and more items from the Terraform state?
+
+# Remove a Resource
+$ terraform state rm module.foo.packet_device.worker[0]
+
+# Remove a Module
+$ terraform state rm module.foo
+How to delete all resources except one?
+
+# list all resources
+terraform state list
+
+# remove that resource you don't want to destroy
+# you can add more to be excluded if required
+terraform state rm <resource_to_be_deleted> 
+
+# destroy the whole stack except above resource(s)
+terraform destroy 
+-------------------------------------------------------------
+packer : Packer is used to  create only AMI ( Amazon Machine image ).
+
+Packer is a tool for creating machine images, and its scripts are written in JSON or HCL (HashiCorp Configuration Language).
+Here are some of its key advantages:
+
+Cross-Platform Image Building: Packer supports multiple platforms, allowing you to create images for various virtualization and cloud providers. 
+                   This helps maintain consistency across your infrastructure, whether you're deploying to AWS, Azure, VMware, or other platforms.
+
+Infrastructure as Code (IaC): Packer scripts are written in JSON or HCL, which means you can version-control them and treat them as code.
+                              This enables collaboration, review, and proper management of your image creation process.
+
+Immutable Infrastructure: Packer promotes the concept of immutable infrastructure, where images are built once and remain unchanged during runtime.
+                          This approach enhances stability, security, and predictability in your environment.
+
+Reproducibility: Packer ensures that images are built in a consistent and repeatable manner. This eliminates the issues related to manual 
+                 configuration drift and guarantees that each image is built using the same set of configurations.
+
+Automation and Efficiency: Packer automates the process of image creation, provisioning, and configuration, reducing the manual effort required.
+                           This leads to faster and more efficient image deployment.
+
+Parallel Image Builds: Packer can build images in parallel, taking advantage of modern hardware capabilities. 
+                     This speeds up the image creation process and helps manage multiple image variations simultaneously.
+
+Integration with Provisioners: Packer supports various provisioners like shell scripts, Ansible, Chef, and Puppet. 
+                               This allows you to configure the images during the build process, ensuring that they are ready to use when deployed.
+
+Customization: Packer provides flexibility to customize images according to your needs. You can install software, apply security settings,
+             and perform other configurations to create images tailored to your application requirements.
+
+Testing and Validation: Packer allows you to test images during the build process. You can run scripts, execute tests, and validate that the image
+                        behaves as expected before finalizing it.
+
+Reduced Security Risks: Packer helps minimize security risks by creating images from a known, consistent state. This reduces the chances of 
+                       vulnerabilities or misconfigurations creeping into your images.
+
+Infrastructure Pipelines: By integrating Packer into your infrastructure pipelines, you can automate the entire process of creating and 
+                        deploying images. This contributes to a more streamlined and predictable deployment process.
+
+Documentation and Auditability: Packer scripts serve as documentation of how images are built. This makes it easier to understand the image's 
+                               history, configurations, and dependencies, enhancing transparency and auditability.
+
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install packer
+
+
+root@ip-172-31-35-222:~# packer
+Usage: packer [--version] [--help] <command> [<args>]
+
+Available commands are:
+    build           build image(s) from template
+    console         creates a console for testing variable interpolation
+    fix             fixes templates from old versions of packer
+    fmt             Rewrites HCL2 config files to canonical format
+    hcl2_upgrade    transform a JSON template into an HCL2 configuration
+    init            Install missing plugins or upgrade plugins
+    inspect         see components of a template
+    plugins         Interact with Packer plugins and catalog
+    validate        check that a template is valid
+    version         Prints the Packer version
+
+
+root@ip-172-31-35-222:~# packer --version
+1.9.2
+
+{
+  "variables": {
+    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "source_ami_filter": {
+        "filters": {
+          "virtualization-type": "hvm",
+          "name": "ubuntu/images/*ubuntu-xenial-16.04-amd64-server-*",
+          "root-device-type": "ebs"
+        },
+        "most_recent": true
+      },
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "my-custom-ami {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "path/to/configure.sh"
+    }
+  ]
+}
+-----------------------------
+{
+  "variables": {
+    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "source_ami": "ami-0f5ee92e2d63afc18",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "my-custom-ami {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "/opt/configure.sh"
+    }
+  ]
+}
+
+-------------------------------------
+corrext packer script file i.e testpacker.json
+{
+  "variables": {
+    "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+    "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}"
+  },
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "ap-south-1",
+      "source_ami": "ami-0f5ee92e2d63afc18",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "my-custom-ami {{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "/root/config.sh"
+    }
+  ]
+}
+--------------
+below shell script file 
+#! /bin/bash
+sudo apt update -y
+sudo apt install wget -y
+sudo apt install httpd -y
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo useradd avinna
+
+
+
+root@ip-172-31-35-222:~# packer inspect testpacker.json
+Packer Inspect: JSON mode
+Optional variables and their defaults:
+
+  aws_access_key = {{env `AWS_ACCESS_KEY_ID`}}
+  aws_secret_key = {{env `AWS_SECRET_ACCESS_KEY`}}
+
+Builders:
+
+  amazon-ebs
+
+Provisioners:
+
+  shell
+
+Note: If your build names contain user variables or template
+functions such as 'timestamp', these are processed at build time,
+and therefore only show in their raw form here.
+root@ip-172-31-35-222:~#

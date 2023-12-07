@@ -1,0 +1,258 @@
+Compare all cloud service resource created by terraform 
+---------------------------------------------------------
+# Specify the provider and its configuration
+provider "google" {
+  project     = "<YOUR_PROJECT_ID>"
+  region      = "<YOUR_REGION>"
+  credentials = file("<PATH_TO_YOUR_SERVICE_ACCOUNT_KEY_JSON>")
+}
+
+# Create a GCP instance
+resource "google_compute_instance" "example_instance" {
+  name         = "example-instance"
+  machine_type = "n1-standard-1"
+  zone         = "<YOUR_ZONE>"
+
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+
+  network_interface {
+    network = "default"
+    access_config {
+      // Ephemeral IP
+    }
+  }
+
+  tags = ["web-server"]
+}
+--------------------------------------------
+# Configure the Azure provider
+provider "azurerm" {
+  features {}
+}
+
+# Create a resource group
+resource "azurerm_resource_group" "example_resource_group" {
+  name     = "example-resource-group"
+  location = "West Europe"
+}
+
+# Create a virtual network
+resource "azurerm_virtual_network" "example_virtual_network" {
+  name                = "example-virtual-network"
+  resource_group_name = azurerm_resource_group.example_resource_group.name
+  location            = azurerm_resource_group.example_resource_group.location
+  address_space       = ["10.0.0.0/16"]
+}
+
+# Create a subnet
+resource "azurerm_subnet" "example_subnet" {
+  name                 = "example-subnet"
+  resource_group_name  = azurerm_resource_group.example_resource_group.name
+  virtual_network_name = azurerm_virtual_network.example_virtual_network.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+# Create a network security group
+resource "azurerm_network_security_group" "example_network_security_group" {
+  name                = "example-network-security-group"
+  resource_group_name = azurerm_resource_group.example_resource_group.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+# Create a public IP address
+resource "azurerm_public_ip" "example_public_ip" {
+  name                = "example-public-ip"
+  resource_group_name = azurerm_resource_group.example_resource_group.name
+  location            = azurerm_resource_group.example_resource_group.location
+  allocation_method   = "Static"
+}
+
+# Create a network interface
+resource "azurerm_network_interface" "example_network_interface" {
+  name                = "example-network-interface"
+  resource_group_name = azurerm_resource_group.example_resource_group.name
+  location            = azurerm_resource_group.example_resource_group.location
+
+  ip_configuration {
+    name                          = "example-ip-configuration"
+    subnet_id                     = azurerm_subnet.example_subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.example_public_ip.id
+  }
+}
+
+# Create a virtual machine
+resource "azurerm_virtual_machine" "example_virtual_machine" {
+  name                  = "example-virtual-machine"
+  resource_group_name   = azurerm_resource_group.example_resource_group.name
+  location              = azurerm_resource_group.example_resource_group.location
+  vm_size               = "Standard_DS1_v2"
+  network_interface_ids = [azurerm_network_interface.example_network_interface.id]
+  delete_os_disk_on_termination = true
+
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "example-os-disk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
+  }
+
+  os_profile {
+    computer_name  = "examplevm"
+    admin_username = "adminuser"
+    admin_password = "Password1234!"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = false
+  }
+
+  boot_diagnostics {
+    enabled     = true
+    storage_uri = azurerm_storage_account.example_storage_account.primary_blob_endpoint
+  }
+}
+
+# Create a storage account for boot diagnostics
+resource "azurerm_storage_account" "example_storage_account" {
+  name                     = "examplestorageaccount"
+  resource_group_name      = azurerm_resource_group.example_resource_group.name
+  location                 = azurerm_resource_group.example_resource_group.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+# Create a managed disk
+resource "azurerm_managed_disk" "example_managed_disk" {
+  name                 = "example-managed-disk"
+  location             = azurerm_resource_group.example_resource_group.location
+  resource_group_name  = azurerm_resource_group.example_resource_group.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = 100
+}
+
+# Attach the managed disk to the virtual machine
+resource "azurerm_virtual_machine_data_disk_attachment" "example_data_disk_attachment" {
+  managed_disk_id    = azurerm_managed_disk.example_managed_disk.id
+  virtual_machine_id = azurerm_virtual_machine.example_virtual_machine.id
+  lun                = 0
+  caching            = "ReadWrite"
+  create_option      = "Attach"
+}
+--------------------------------------------------------------------------
+# Configure the AWS provider
+provider "aws" {
+  region = "<YOUR_REGION>"
+}
+
+# Create a key pair for SSH access
+resource "aws_key_pair" "example_key_pair" {
+  key_name   = "example-key-pair"
+  public_key = file("<PATH_TO_YOUR_PUBLIC_KEY>")
+}
+
+# Create a security group
+resource "aws_security_group" "example_security_group" {
+  name        = "example-security-group"
+  description = "Example security group for EC2 instance"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Create an EC2 instance
+resource "aws_instance" "example_instance" {
+  ami           = "<YOUR_AMI_ID>"
+  instance_type = "t2.micro"
+  key_name      = aws_key_pair.example_key_pair.key_name
+  security_group_ids = [aws_security_group.example_security_group.id]
+
+  tags = {
+    Name = "example-instance"
+  }
+}
+-----------------------
+Creating storage by all cloud service provider ( bucket )
+----------------------------------------------------------
+# Configure the AWS provider   ( bucket creating )
+provider "aws" {
+  region = "<YOUR_REGION>"
+}
+
+# Create an S3 bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "<YOUR_BUCKET_NAME>"
+  acl    = "private"
+
+  tags = {
+    Name        = "example-bucket"
+    Environment = "production"
+  }
+}
+-------------------------------
+Here's an example of a Terraform configuration file that creates an Azure Blob Storage container:
+# Configure the Azure provider
+provider "azurerm" {
+  features {}
+}
+
+# Create a resource group
+resource "azurerm_resource_group" "example_resource_group" {
+  name     = "example-resource-group"
+  location = "West Europe"
+}
+
+# Create an Azure Storage Account
+resource "azurerm_storage_account" "example_storage_account" {
+  name                     = "examplestorageaccount"
+  resource_group_name      = azurerm_resource_group.example_resource_group.name
+  location                 = azurerm_resource_group.example_resource_group.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = {
+    environment = "production"
+  }
+}
+
+# Create an Azure Storage Container
+resource "azurerm_storage_container" "example_container" {
+  name                  = "example-container"
+  storage_account_name  = azurerm_storage_account.example_storage_account.name
+  container_access_type = "private"
+}
+-------------------------------------------------

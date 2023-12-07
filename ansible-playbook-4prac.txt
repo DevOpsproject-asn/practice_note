@@ -1,0 +1,787 @@
+01pingServers.yml
+---
+- hosts: all
+  gather_facts: no
+  remote-user: ansible 
+  tasks:
+   - name: Test connection
+     ping: 
+	 remote_user: ansible
+	 
+- hosts: all
+  gather_facts: no
+  remote_user: ansible
+  tasks:
+    - name: Test connection
+      ping:
+      remote_user: ansible
+...
+01pingServersWithFacts.yml
+---
+- hosts: all
+  gather_facts: yes
+  remote_user: ansible
+  tasks: 
+   - name: Test connection
+     ping: 
+	 remote_user: ansible
+- hosts: all
+  gather_facts: yes
+  remote_user: ansible
+  tasks:
+    - name: Test connection
+      ping:
+      remote_user: ansible
+...
+02createFile.yml
+---
+- hosts: appServers
+  tasks:
+   - name: Create a file
+     file: 
+	   path: /tmp/data.txt
+	   state: touch
+	   
+- hosts: appServers
+  tasks:
+   - name: Create a file
+     file:
+      path: /tmp/Mithun.txt 
+      state: touch
+...
+03installHTTPServer.yml
+---
+- hosts: all
+  become: true
+  tasks: 
+   - name: Install Apache HTTP server
+     yum: name=httpd update_cache=yes state=latest
+	 
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Apache HTTP server
+      yum: name=httpd update_cache=yes state=latest
+...
+04installHTTPServerandStart.yml
+---
+- hosts: appServers
+  baecome: true
+  tasks: 
+    - name: Install Apache Http server
+	  yum: name=httpd update_cache=yes state=latest
+	- name: Start HTTP server
+	  services: name=httpd enabled=yes state=started
+	- name: Insert Index page
+	  template:
+	    src: index.html
+		dest: /var/www/html/index.html
+
+- hosts: appServers
+  become: true
+  tasks:
+    - name: Install Apache HTTP server
+      yum: name=httpd update_cache=yes state=latest
+    - name: Start HTTP Server
+      service: name=httpd enabled=yes state=started
+    - name: Insert Index Page
+      template:
+       src: index.html
+       dest: /var/www/html/index.html
+...
+05installHTTPServerWithHandlers.yml
+---
+- hosts: all
+  become: true
+  tasks:
+   - name: Install Apache HTTP server
+     yum: name=httpd update_cache=yes state=latest
+	 notify:
+	  - start HTTP server
+  handlers:
+   - name: Start HTTPS Server
+     service:
+	   name= httpd
+	   state=restarted
+	   
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Apache HTTP Server
+      yum: name=httpd update_cache=yes state=latest
+      notify:
+        - Start HTTP Server
+  handlers:
+    - name: Start HTTP Server
+      service:
+          name=httpd
+          state=restarted
+...
+06command.yml
+---
+- hosts: localhost
+  tasks:
+  - name: Display the date
+    command: date
+	register: dateOutPut
+	ignore_errors: yes
+  - name: Dispaly the contents of dateOutPut
+    debug: 
+	  msg: "{{dateOutPut}}"
+  - name: Display the std output of dateOutPut
+    debug:
+	  msg: "{{dateOutPut.stdout}}"
+  - name: Display the std error of dateOutPut 
+    debug: 
+	  msg: "{{dateOutPut.stderr}}"
+	  
+- hosts: localhost
+  tasks:
+  - name: Display the date
+    command: date
+    register: dateOutPut
+    ignore_errors: yes
+  - name: Display the contents of dateOutPut
+    debug:
+     msg: "{{dateOutPut}}"
+  - name: Display the std output of dateOutPut 
+    debug:
+     msg: "{{dateOutPut.stdout}}"
+  - name: Display the std error of dateOutPut
+    debug:
+      msg: "{{dateOutPut.stderr}}"
+...
+06copy.yml
+---
+- hosts: all
+  become: true
+  tasks: 
+   - name: Copy ansible inventory file to all hostmachines
+     copy:
+     	 src=/etc/ansible/hosts
+		 dest=/tmp/
+		 owner=root
+		 group=root
+		 mode=0666
+
+	       
+ - hosts: all
+   become: true
+   tasks:
+     - name: Copy ansible inventory file to all hostmachines
+       copy: src=/etc/ansible/hosts 
+             dest=/tmp/  
+             owner=root 
+             group=root 
+             mode=0666
+...
+07loops1.yml
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install list of packages
+	  yum: name='{{item}}' state=present
+	  with_items:
+	   - httpd
+	   - wget
+	   - vim 
+	   - zip
+	   - unzip
+	   
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install list of packages
+      yum: name='{{item}}' state=present
+      with_items:
+       - httpd
+       - wget
+       - vim
+       - zip
+       - unzip  
+...
+07loops2.yml
+---
+- hosts: true
+  become: true
+  tasks: 
+  - name: Install list of packages
+    yum: 
+	  name: ['httpd', 'wget', 'vim', 'zip', 'unzip']
+	  state: present 
+- hosts: localhost
+  become: true
+  tasks:
+   - name: Install list of packages
+     yum:
+      name: ['httpd', 'wget', 'vim', 'zip', 'unzip']
+...
+ansible-createuser-withpassword.yml
+---
+- hosts: all
+  tasks: 
+  - name: Create Devops User
+    user:
+	  name: ansible
+	  create_home: true
+	  shell: /bin/bash
+	  comment: "Ansible Management Account"
+	  expires: -1
+	  pasword: "{{'DevOps@2023' | password_hash('sha512','A512') }}"
+  - name: Setup Sudo Access for Devops User
+    copy: /etc/sudoers.d/ansible
+	content: 'ansible ALL=(ALL) NOPASSWORD: ALL'
+	validate: /usr/sbin/visudo -cf %s 
+  - name: Disable Password Authentication
+    lineinfile: 
+	   dest=/etc/ssh/sshd_config
+	   regexp='^PasswordAuthentication'
+	   line="PasswordAuthentication yes"
+	   state=present
+	   backup=yes
+	notify: 
+	  - restart: ssh
+  handlers:
+  - name: restart ssh
+    service:
+	  name=sshd
+	  state=restarted
+	  
+- hosts: all
+  tasks:
+  - name: Create Devops User
+    user:
+      name: ansible
+      create_home: true
+      shell: /bin/bash
+      comment: "Ansible Management Account"
+      expires: -1
+      password: "{{ 'DevOps@2020' | password_hash('sha512','A512') }}"
+  - name: Setup Sudo Access for Devops User
+    copy:
+      dest: /etc/sudoers.d/ansible
+      content: 'ansible ALL=(ALL) NOPASSWD: ALL' 
+      validate: /usr/sbin/visudo -cf %s
+  -  name: Disable Password Authentication
+     lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp='^PasswordAuthentication'
+        line="PasswordAuthentication yes"
+        state=present
+        backup=yes
+     notify:
+       - restart ssh
+  handlers:
+  - name: restart ssh
+    service:
+      name=sshd
+      state=restarted
+----------------------------------------------------------------------------
+----------------ansible-createuser.yml---------------
+-------------------------------------------------
+# ansible <group/host Name> -m ping -u <userName> --private-key=~/devops.pem
+# ansible-playbook -b ansible-createuser.yml -u <userName> --private-key=~/devops.pem
+---
+- hosts: all
+  tasks: 
+  - name: Create Ansible User
+    user: 
+	  name: ansible
+	  create_home: true
+	  shell: /bin/bash
+	  comment: "Ansible Management Account"
+	  expires: -1
+	  password: "{{ 'DevOps@2023 | password_hash('sha512','A512') }}"
+  - name: Deploy Local User SSH Key
+    authorized_key:
+	  user: ansible
+	  state: present
+	  manage_dir: true
+	  key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
+  - name: Setup Sudo Acess for Ansible User
+    copy: 
+	  dest: /etc/sudoers.d/ansible
+	  content: 'ansible ALL=(ALL)  NOPASSWD: ALL'
+	  validate: /usr/sbin/visudo -cf %s
+  - name:  Disable Password Authentication
+    lineinfile: 
+	    dest= /etc/ssh/sshd_config
+		regexp='^PasswordAuthentication'
+		line="PasswordAuthentication no'
+		state=present
+		backup=yes
+     notify:
+	   - restart ssh
+   handlers:
+   - name: restart ssh
+     service:
+	   name=sshd
+	   state=restarted  
+
+- hosts: all
+  tasks:
+  - name: Create Ansible User
+    user:
+      name: ansible
+      create_home: true
+      shell: /bin/bash
+      comment: "Ansible Management Account"
+      expires: -1
+      password: "{{ 'DevOps@2020' | password_hash('sha512','A512') }}"
+  - name: Deploy Local User SSH Key
+    authorized_key:
+      user: ansible
+      state: present
+      manage_dir: true
+      key: "{{ lookup('file', '/home/ansible/.ssh/id_rsa.pub') }}"
+  - name: Setup Sudo Access for Ansible User
+    copy:
+      dest: /etc/sudoers.d/ansible
+      content: 'ansible ALL=(ALL) NOPASSWD: ALL' 
+      validate: /usr/sbin/visudo -cf %s
+  -  name: Disable Password Authentication
+     lineinfile:
+        dest=/etc/ssh/sshd_config
+        regexp='^PasswordAuthentication'
+        line="PasswordAuthentication no"
+        state=present
+        backup=yes
+     notify:
+       - restart ssh
+  handlers:
+  - name: restart ssh
+    service:
+      name=sshd
+      state=restarted	  
+-------------------------------------------------------
+--------gitclone-------
+-----------------
+---
+- hosts: localhost
+  become: true
+  tasks: 
+   - name: Install Git
+     yum: name=git state=present
+   - name: git clone
+     git: 
+	   repo: 'https://github.com/devopstrainingbanglore/gradle-web-app.git'
+	   dest: /home/ansible/maven-web-app
+	   
+- hosts: localhost
+  become: yes
+  tasks:
+   - name: Install Git
+     yum: name=git state=present
+   - name: git clone
+     git:
+      repo: 'https://github.com/devopstrainingbanglore/gradle-web-app.git'
+      dest: /home/ansible/gradle-web-app
+-----------------------------------------------------------------------------
+--------------installHttpdWithCopyTemplate.yml--------------
+---
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install httpd
+    yum: 
+	  name: httpd
+	  state: present
+  - name: Copy httpd.conf
+    template:
+	  src: httpd.conf.j2
+	  dest: /etc/httpd/conf/httpd.conf
+	notify:
+	- Restart httpd
+  - name: Copy index.html
+    copy:
+	  src: index.html
+	  dest: /var/www/html
+  handlers:
+  - name: Restart httpd
+    service:
+	  name: httpd
+	  state: restarted
+	  
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install httpd
+    yum:
+      name: httpd
+      state: present
+  - name: Copy httpd.conf
+    template:
+      src: httpd.conf.j2
+      dest: /etc/httpd/conf/httpd.conf
+    notify:
+    - Restart httpd
+  - name: Copy index.html
+    copy:
+      src: index.html
+      dest: /var/www/html
+  handlers:
+  - name: Restart httpd
+    service:
+      name: httpd
+      state: restarted  
+----------------------------------------------------
+----Installjenkins.yaml
+-------------------------------
+- hosts: jenkinsServer  
+  become: true
+  tasks: 
+  - name: Download long term jenkins release                # jenkins package download 
+    get_url: 
+	   url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+	   dest: /etc/yum.repos.d/jenkins.repo
+  - name: Import jenkins key from url 
+    rpm_key: 
+	  state: present
+	  key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+  - name: Install java                                         # java installation
+    yum: 
+	  name:java-11-openjdk-devel
+	  state: present
+  - name: Install Epel Release which has daemonize dependency which is required for jenkins.  # Epel package 
+    yum: 
+	  name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+	  state: present
+	  siable_gpg_check: true
+  - name: install jenkins                                                              # jenkins installation
+    yum: 
+	  name: jenkins
+	  state: latest
+	  skip_broken: yes
+  - name: start Jenkins                                                                # start jenkins
+    service: 
+	  name: jenkins
+	  state: started 
+  - name: enable jenkins                                                               # enable jenkins
+    sevice: 
+	  name: jenkins
+	  enabled: true
+  - name: sleep for 30 seconds and continue with play                                   # wait for  30 seconds assigned with port 8080
+    wait-for: 
+	  delay: 30
+	  port: 8080
+  - name: init password jenkin                                                           # jenkins password collect
+    shell: cat /var/lib/secrets/initialAdminPassword
+	chaned_when: false
+	register: result
+  - name: print init password jenkins                                                    # jenkins password print
+    debug:
+	  var: result.stdout
+	     
+	  
+- hosts: jenkinsServer
+  become: yes
+  tasks:
+  - name: Download Long Term Jenkins release
+    get_url:
+      url: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+      dest: /etc/yum.repos.d/jenkins.repo
+  - name: Import jenkins key from url
+    rpm_key:
+      state: present
+      key: https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+  - name: Install java
+    yum:
+      name: java-11-openjdk-devel
+      state: present
+  - name: Install Epel Relaase which has daemonize  dependency which is required for Jenkins.
+    yum:
+      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+      state: present
+      disable_gpg_check: true
+  - name: Install jenkins
+    yum:
+      name: jenkins
+      state: latest
+      skip_broken: yes
+  - name: Start Jenkins
+    service:
+      name: jenkins
+      state: started
+  - name: enable jenkins
+    systemd:
+     name: jenkins
+     enabled: true
+  - name: sleep for 30 seconds and continue with play
+    wait_for:
+     delay: 30
+     port: 8080
+  - name: init password jenkin
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    changed_when: false
+    register: result
+  - name: print init password jenkins
+    debug:
+     var: result.stdout
+-----------------------------------------------------------------------------------------
+--- uninstall jenkins.yaml
+--------------------------------------------
+---
+- hosts: appServers
+  gather_facts: false
+  become: true
+  tasks:
+  - name: uninstall wget
+    yum: 
+	  name: wget
+	  state: absent
+  - name: uninstall openjdk
+    yum: 
+	  name: java-11-openjdk-devel
+	  state: absent
+  - name: unistall jenkins
+    yum: 
+	  name: jenkins
+	  state: absent
+  - name: Remove jenkins folder
+    shell: rm -rf /var/lib/jenkoins
+	changed_when: false
+	register: result
+ - name: print init password jenkins
+   debug: 
+     var: result.stdout
+
+---
+- hosts: appServers
+  gather_facts: false
+  become: true
+  tasks:
+  
+  - name: uninstall wget
+    yum:
+     name: wget
+     state: absent
+
+  - name: uninstall openjdk
+    yum:
+     name: java-1.8.0-openjdk
+     state: absent
+    
+  - name: uninstall jenkins
+    yum:
+     name: jenkins
+     state: absent
+    
+ 
+    
+  - name: Remove Jenkins folder
+    shell: rm -rf  /var/lib/jenkins
+    changed_when: false
+    register: result
+    
+  - name: print init password jenkins
+    debug:
+     var: result.stdout
+-----------------------------------------------------------
+-----------installNexusServer.yaml-------------------
+-------------------------------------------------------------
+---
+- hosts: nexusservers
+  become: true
+  gather_facts: no
+  tasks:
+  - name: Install java 1.8
+    yum:
+	  name: java-1.8.0-openjdk
+	  state: present
+  - name: Download nexus software 
+    get-url: 
+	  url: https://download.sonatype.com/nexus/3/nexus-3.43.0-01-unix.tar.gz
+	  dest: /opt/
+  - name: Extract nexus software
+    unarchive:
+	  src: /opt/nexus-3.43.0-01-unix.tar.gz
+	  dest: /opt/
+  - name: Rename the b=nexus dir
+    shell:
+	 mv /opt/nexus-3.43.0-01 /opt/nexus
+  - name: create the nexus user
+    user:
+	 name: nexus
+	 crate_home: true
+	 shell: /bin/bash
+	 comment: "nexus managment account"
+	 expires: -1
+	 password: "{{ 'nexus' | password_hash('sha512','A512') }}"
+  - name: Setup Sudo Access for nexus user
+    copy: 
+     dest: /etc/sudoers.d/nexus
+     content: 'nexus ALL=(ALL) NOPASWORD: ALL'
+     validate: /usr/sbin/visudo  -cf %s
+  - name: Change owner & group and permissions to /opt/nexus
+    file: 
+      path: /opt/nexus/
+      owner: nexus
+      group: nexus
+      mode: 0775
+      recuse: yes
+      state: directory	  
+  - name: chage owner & group & permission of /opt/sonartype-work/
+    file:
+	  path: /opt/sonartype-work/
+	  owner: nexus
+	  group: nexus
+	  mode: 0775
+	  recuse: yes
+	  state: directory 
+  - name: setup run_as_user for nexus nexus_rc
+    lineinfile:
+	  dest: /opt/nexus/bin/nexus.rc
+	  regexp: "#run_as_user="
+	  line: "run_as_user=nexus"
+      backrefs: true
+  - name: create soft link 
+    file:
+      src: /opt/nexus/bin/nexus
+      dest: /etc/init.d/nexus
+      state: link
+  - name: start the nexus service
+    systemd:
+	  name: nexus
+	  state: started
+	  daemons-reload: yes
+	  enabled: yes
+	  
+	
+- hosts: nexusservers
+  become: true
+  gather_facts: no
+  tasks:
+   - name: Install Java 1.8                                                 # java installation 
+     yum:
+      name: java-1.8.0-openjdk
+      state: present
+   - name: Download nexus software                                          # download nexus package
+     get_url:
+      url: https://download.sonatype.com/nexus/3/nexus-3.43.0-01-unix.tar.gz
+      dest: /opt/
+   - name: Extract Nexus Software                                            # extract package
+     unarchive:
+      src: /opt/nexus-3.43.0-01-unix.tar.gz
+      dest: /opt/
+      remote_src: yes
+   - name: Rename the nexus directory                                        # rename nexus directory 
+     shell:
+      mv /opt/nexus-3.43.0-01 /opt/nexus/
+   - name: Create the nexus user                                             #create nexus user
+     user:
+      name: nexus
+      create_home: true
+      shell: /bin/bash
+      comment: "Nexus Management Account"
+      expires: -1
+      password: "{{ 'nexus' | password_hash('sha512','A512') }}"
+   - name: Setup Sudo Access for nexus User                                  # nexus user setup sudo access
+     copy:
+      dest: /etc/sudoers.d/nexus
+      content: 'nexus ALL=(ALL) NOPASSWD: ALL'
+      validate: /usr/sbin/visudo -cf %s
+   - name: Change owner and group and permissions to /opt/nexus/             # change owner & group permission to nexus dir
+     file:
+      path: /opt/nexus/
+      owner: nexus
+      group: nexus
+      mode: 0775
+      recurse: yes
+      state: directory
+   - name: Change owner and group and permissions to /opt/sonatype-work      # change owner & group permission to sonartype-work dir
+     file:
+      path: /opt/sonatype-work/
+      group: nexus
+      owner: nexus
+      mode: 0775
+      recurse: yes
+      state: directory
+   - name: Set the run_as_user parameter in nexus.rc                        # set the run_as_user parameter in nexus.rc
+     lineinfile:
+      dest: /opt/nexus/bin/nexus.rc
+      regexp: "#run_as_user="
+      line: "run_as_user=nexus"
+      backrefs: true
+   - name: Create soft link for nexus                                       # create soft link for nexus
+     file:
+      src: /opt/nexus/bin/nexus
+      dest: /etc/init.d/nexus
+      state: link
+   - name: Start nexus service                                              # start nexus service
+     systemd:
+      name: nexus
+      state: started
+      daemon_reload: yes
+      enabled: yes
+...
+
+--------------------------------------------------------------------
+-------------change_expired_pass.yml----------------------
+- hosts: all
+  gather_facts: no
+  tasks:
+  - name: Set password if expired
+    delegate_to: 127.0.0.1
+    become: no
+    expect:
+      command: ssh -o "StrictHostKeyChecking=no" username@{{ inventory_hostname }}
+      timeout: 5
+      responses:
+        "password:":
+          - "oldpass"
+          - "oldpass"
+          - "newpass"
+          - "newpass"
+        # if succesfully login then quit
+        "\\~\\]\\$": exit
+    register: status
+    changed_when: "'authentication tokens updated successfully' in status.stdout"
+
+  - debug: var=status
+ ---------------------------------------------------------------------------------------
+ ----------installPackagesUsingVars.yaml--------------
+ --------------------------------------------------
+---
+- hosts: localhost
+  become: true
+  vars: 
+    packages:
+	  - vim
+	  - unzip
+	  - zip
+	  - wget
+	  - git
+	state: latest
+  tasks:
+   - name: Install vim, unzip,zip,wget
+     yum:
+	 name: "{{ packages }}"
+	 
+ #This playbbok will install vim,unzip,zip,wget
+---
+- hosts: localhost
+  become: true
+  vars:
+      packages:
+        - vim
+        - unzip
+        - zip
+        - wget
+        - git
+      state: latest
+  tasks:
+    - name: Install vim,unzip,zip,wget
+      yum:
+      name: "{{ packages }}"
+...
+---------------------------------------------------------
+ansible-vault  encrypt filename  ( encreypt the file )
+ansible-vault decrypt  filename  ( we can decrypt the file)
+ansible-vault edit filename 
+ansible-vault rekey filename 
+
+ansible-playbook jenkins.yaml  --vault-password
+ansible-playbook jenkins.yaml --vault-password-file=vaultpaasword ( file name which we store password)
+
+

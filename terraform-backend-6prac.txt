@@ -1,0 +1,123 @@
+
+____VPC creating -------
+
+provider "aws" {
+    profile = "myaws"
+    region  = "us-east-1"
+}
+resource "aws_vpc" "main" {
+  cidr_block = "172.16.0.0/16"
+}
+resource "aws_subnet" "main" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "172.16.1.0/24"
+  tags = {
+    Name = "Main"
+  }
+}
+resource "aws_network_interface" "test" {
+  subnet_id       = aws_subnet.main.id
+  private_ips     = ["172.16.1.30"]
+}
+resource "aws_instance""terraformserver"{
+    ami = "ami-026ebd4cfe2c043b2"
+    instance_type = "t2.micro"
+    network_interface {
+        network_interface_id = aws_network_interface.test.id
+        device_index = 0
+    }
+}
+-------------------------------------------------------
+terraform backend store 
+---------------------
+terraform {
+  backend "s3" {
+    bucket = "mybucket"
+    key    = "path/to/my/key"
+    region = "us-east-1"
+  }
+}
+----------------------------------
+---------storage creating ---
+--------------------------
+provider "aws" {
+    profile  = "myaws"
+    region   = "${var.region}"
+}
+resource "aws_s3_bucket" "buckets" {
+    bucket  =  "${var.s3_bucket_name}"
+    acl     =  "${var.acl_value}"
+    tags_all = {
+        Name = "mybucket34"
+        Environment = "dev"
+    }
+}
+----------------
+var.tf
+-------
+variable "region" {
+  type =  string
+    description = "amazon region for storage the object"
+    default = "ap-south-1"
+}
+variable "s3_bucket_name"{
+   type = string
+    description = "bucket name to identify"
+    default = "mybucket234567"
+}
+variable  "acl_value" {
+    type = string 
+      description = "access to storage"
+      default  = "private"
+}
+------------------
+map 
+---
+provider "aws" {
+    profile = "myaws"
+    region = "us-east-1"
+}
+variable "vpcs" {
+    type = map(object({
+        cidr = string
+        instance_tenancy = string
+        tags = map(string)
+    }))
+    default = {
+      "1" = {
+        cidr = "10.0.0.0/16"
+        instance_tenancy = "default"
+        tags = {
+            "Name" = "dev"
+        }
+      }
+      "2" = {
+        cidr = "10.0.0.0/24"
+        instance_tenancy = "default"
+        tags = {
+            "Name" = "prod"
+        }
+      }
+    }
+}
+resource "aws_vpc" "main"{
+     for_each = var.vpcs
+     cidr_block = each.value.cidr
+     instance_tenancy = each.value.instance_tenancy
+     tags = each.value.tags
+}
+-----------
+output.tf
+
+output "private_ip_address"{
+    value = aws_network_interface.test.private_ips
+}
+output "name_ec2_tag"{
+    value = aws_instance.terraformserver1.tags
+}
+------------------
+terraform.varstf
+
+ami  =  "ami-053b0d53c279acc90"
+instance_type = "t2.medium"
+

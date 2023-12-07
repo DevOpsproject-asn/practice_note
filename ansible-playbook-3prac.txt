@@ -1,0 +1,329 @@
+---
+- hosts: localhost
+  tasks:
+  - name: Display the date
+    command: date
+    register: dateOutPut
+    ignore_errors: yes
+  - name: Display the contents of dateOutPut
+    debug:
+     msg: "{{dateOutPut}}"
+  - name: Display the std output of dateOutPut 
+    debug:
+     msg: "{{dateOutPut.stdout}}"
+  - name: Display the std error of dateOutPut
+    debug:
+      msg: "{{dateOutPut.stderr}}"
+...
+
+----------------------------
+Write a playbook for date to display ?
+---
+- hosts: localhost
+  tasks:
+  - name: Display the date
+    command: date
+	register: dateOutPut
+	ignore_errors: yes
+  - name: Display the contents of dateOutPut
+    debug: 
+      msg: "{{dateoutPut}}"
+  - name: Display the std output of dateOutPut
+    debug:
+      msg: "{{dateOutPut.stdout}}"
+  - name: Display the std error of dateOutPut
+    debug:
+      msg: "{{dateOutPut.stderr}}"
+...
+
+When condition : parallel jobs executions
+
+
+pipeline {
+    agent any
+    stages {
+        stage('some parallel stage') {
+            parallel {
+                stage('parallel stage 1') {
+                    when {
+                      expression { ENV == "something" }
+                    }
+                    steps {
+                        echo 'something'
+                    }
+                }
+                stage('parallel stage 2') {
+                    steps {
+                        echo 'something'
+                    }
+                }
+            }
+        }
+    }
+}
+
+pipeline {
+     
+      // Agent To Run On
+      agent none
+    
+      stages {
+
+   
+    // Processing OpenCV Optimizer
+    stage('OpenCV Processing'){
+
+      when {
+          expression { inputOptimizer == "OpenCV DNN" }
+      }
+
+
+      stages {
+
+        // Checkout and Compile stage
+        stage('SCM Checkout & Build'){
+
+          parallel {
+
+            stage('Test On Windows') {
+                agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "first stage"
+                }
+            }//Test On Windows
+
+            stage('Test On Linux') {
+                agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "second stage"
+                }
+
+            }//Test On Linux
+
+            stage('Testing '){
+              agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "second dddd"
+                }
+            }//Testing
+
+          }
+
+        }
+
+        // Docker Build
+        stage("Docker Build"){
+      
+          steps {
+
+            echo "Build stage"
+
+          }
+        
+        }
+
+      }
+
+    }
+
+
+    // Processing OpenVino Optimizer
+    stage('OpenVino Processing'){
+
+      when {
+          expression { inputOptimizer == "OpenVino CPU Yolov7" }
+      }
+
+
+      stages {
+
+        // Checkout and Compile stage
+        stage('SCM Checkout & Build'){
+
+          parallel {
+
+            stage('Test On Windows') {
+                agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "first stage"
+                }
+            }//Test On Windows
+
+            stage('Test On Linux') {
+                agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "second stage"
+                }
+
+            }//Test On Linux
+
+            stage('Testing '){
+              agent {
+                    label "Stagging-Node"
+                }
+                steps {
+                    echo "second dddd"
+                }
+            }//Testing
+
+          }
+
+        }
+
+        // Docker Build
+        stage("Docker Build"){
+      
+          steps {
+
+            echo "Build stage"
+
+          }
+        
+        }
+
+      }
+
+    }
+      
+  }//end of stages
+
+}//end of pipeline	  
+
+--------------------------------------------------------
+parameter pipeline
+----------------------
+pipeline {
+    agent any
+    parameters {
+        booleanParam(name: "DEBUG", defaultValue: true)
+    }
+    stages {
+        stage("Test") {
+            when {
+                expression {
+                    return params.DEBUG
+                }
+            }
+            steps {
+                echo "Hello World!"
+            }
+        }
+    }
+}
+----------------------------------
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install httpd
+    yum:
+      name: httpd
+      state: present
+  - name: Copy httpd.conf
+    template:
+      src: httpd.conf.j2
+      dest: /etc/httpd/conf/httpd.conf
+    notify:
+    - Restart httpd
+  - name: Copy index.html
+    copy:
+      src: index.html
+      dest: /var/www/html
+  handlers:
+  - name: Restart httpd
+    service:
+      name: httpd
+      state: restarted  
+----------------------------------
+---
+- hosts: appServers
+  become: true
+  tasks:
+  - name: Install httpd
+    yum: 
+	  name: httpd
+	  state: present
+  - name: copy httpd.conf
+
+-------------------------
+---
+- hosts: localhost
+  become: yes
+  tasks:
+- name: Install Apache HTTP server on RedHat Server
+tags:
+- install
+yum:
+name: httpd
+state: present
+when: ansible_os_family == "RedHat"
+- name: Install Apache HTTP server on Ubuntu server
+tags:
+- install
+- start
+apt:
+name: apache2
+state: present
+when: ansible_os_family == "Debian"
+- name: Install Apache HTTP server on CentOS server
+yum:
+name: httpd
+state: present
+when:
+- ansible_facts['distribution'] == "CentOS"
+- ansible_facts['distribution_major_version'] == "7"
+- name: Print the Ansible free memory
+debug:
+msg: "free memory is {{ansible_memory_mb.real.free}}"
+
+-------------------
+---
+- hosts: localhost
+  become: yes
+  tasks:
+  - name: install Apache HTTP server on REdhat server
+    tags:
+	- install
+	yum:
+    - name: install HTTPD
+      state: present
+    when: ansible_os_family == "Debian"
+  - name: install apache Httpd server on centos 
+    tags:
+	- install
+	- start
+	yum: 
+	- name: install httpd
+	  state: present
+	when: 
+	- ansible_facts['distibution'] == "CentOS"
+	- ansible_facts['distribution_major-version'] == "7"
+  - name: print the free memory space
+    debug:
+	 msg: "free memory is {{ansible_memory_mb.real.free}}"
+...
+ansible-playbook sample.yaml --list-tags
+ansible-playbook sample.yaml --tags "install,start"
+ansible-palybook sample.yaml --skip-tags "install"
+
+-------------------------------------------------
+  
+
+
+
+
+
+
+
+
+
+

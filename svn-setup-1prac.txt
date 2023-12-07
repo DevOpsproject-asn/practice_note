@@ -1,0 +1,40 @@
+STEPS TO MOVE CODE FROM SVN TO GITLAB
+
+Step-1 Create authors.txt file 
+c:/authors.txt
+abcdef01 = first last &lt; abcdef01@abc.com &gt;
+xyzabc02 = first last &lt; xyzabc02@abc.com &gt;
+qwerty03 = first last  &lt; email@abc.com &gt;
+xzadcd04 = first last  &lt; email@abc.com &gt;
+zxcvbnm05= first last  &lt; email@abc.com &gt;
+
+Note: please replace &lt; and &gt; with angular brackets in authors.txt.
+
+Step-2 create a directory to store your new repo. 
+       mkdir development/project-name
+       cd development/project-name
+
+Step-3 Convert development folder into repo 
+       git init
+
+Step-4 checkout the project from subversion,  passing –no-metadata 
+      Command syntax- 
+      git svn snv-url-with-project --no -metadata
+
+      git svn init http://snv-url-with-project/svn/CDS-WEB/moner... --no-metadata
+
+Step-5 Pass your authors file to match up users
+       git config svn.authorsfile ~/authors.txt
+       git config svn.authorsfile c:/authors.txt
+
+Step-6 git svn fetch
+
+Step-7 Enter SVN username and password
+
+Now we need push the code from local repo to remote repo
+
+Step - 8 add remote repo
+git remote add origin git@gitlab.com:abc-banking-group/moneris-payment-java.git
+
+Step-9 push the code from local to remote repo
+    git push origin master

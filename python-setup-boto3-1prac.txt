@@ -1,0 +1,46 @@
+python set up
+---------------
+download the python package 
+then set the envrinment path 
+C:\Users\Avinna.SN\AppData\Local\Programs\Python\Python311
+
+Python script to create AWS resources 
+------------------------------------
+
+Ec2 instance created by python script 
+-----------------------------------------
+import boto3
+
+# Set your AWS access key and secret key (or use IAM roles)
+aws_access_key_id = 'YOUR_ACCESS_KEY'
+aws_secret_access_key = 'YOUR_SECRET_KEY'
+
+# Set the AWS region and EC2 instance details
+region = 'us-east-1'
+ami_id = 'ami-0c55b159cbfafe1f0'  # Amazon Linux 2 AMI
+instance_type = 't2.micro'
+key_name = 'your-key-pair-name'
+security_group_ids = ['sg-0123456789abcdef0']
+
+# Initialize the EC2 client
+ec2 = boto3.client('ec2', region_name=region, aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+
+# Create an EC2 instance
+response = ec2.run_instances(
+    ImageId=ami_id,
+    InstanceType=instance_type,
+    KeyName=key_name,
+    MinCount=1,
+    MaxCount=1,
+    SecurityGroupIds=security_group_ids
+)
+
+instance_id = response['Instances'][0]['InstanceId']
+print(f"Instance {instance_id} created.")
+
+# Wait for the instance to be in the 'running' state
+ec2.wait_until_instance_running(InstanceIds=[instance_id])
+
+print("Instance is now running.")
+----------------------------------------------------------------
+

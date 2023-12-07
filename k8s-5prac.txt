@@ -1,0 +1,1491 @@
+K8S manifest file 
+--------------------
+Namespace create 
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: test-ns
+  labels:
+     team: testingteam
+	 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-ns
+  labels:
+    team: testingteam
+
+kubectl apply -f namespace.yaml
+kubectl get ns
+
+apiVersion: v1
+kind: namespace 
+metadata: 
+  name: test-ns
+  labels:
+    team: testingteam
+------------------------
+------
+pod create
+-------
+commandline creating pod 
+kubectl run nginxpod --image=nginx --labels app=nginx --port=80
+kubectl run nginxpod --image=nginx --labels app=nginx --port=80
+declarative to crate pod
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginxpod
+  namespace: test-ns
+  lables:
+    app: nginx
+spec:
+  containers:
+    name: nginxcontainer
+	image: nginx
+	ports:
+	  containerPort: 80
+kubectl apply -f nginxpod.yaml
+
+Pod has two type single container or  multicontainer (side car)
+muilti containers will share same network ,storage & other spaecification.  For best practice to use single container pod.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodeapppod
+  lables:
+     app: nodeapp
+spec:
+  containers:
+  - name: nodeapp
+    image: cloudocker123456/nodejs-app-mss:2
+	ports:
+	- containerPort: 9981
+  - name: nginximage
+    image: nginx
+	ports:
+	- containerPort: 80
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodeapppod
+  labels:
+    app: nodeapp
+spec:
+  containers:
+  - name: nodeapp
+    image: dockerhandson/nodejs-app-mss:2
+    ports:
+    - containerPort: 9981
+  - name: ngnixapp
+    image: nginx
+    ports:
+    - containerPort: 80
+    
+------------
+Replication Controller ( RC)
+-----------------------------
+apiVersion: v1
+kind: ReplicationController
+metadata: 
+  name: nginxrcpod
+  namespace: test-ns
+  labels:
+    app: nginxrcpod
+spec:
+  replicas: 2
+  template:
+    metadata:
+	  name: nginxrcpod
+	  labels:
+	    app: nginxpodrc
+	spec:
+	  containers:
+	  - name: nginxrcpodcontainer
+	    image: nginx
+		ports:
+		- containerPort: 80
+-------------
+kubectl get all
+kubectl get pods
+kubectl get pods --show-labels
+kubectl get pods -o wide
+kubectl get pods -o wide --show-lables
+kubectl describe pod nginxpodrc -n test-ns
+kubectl describe pod nginxpodrc
+
+
+kubectl get all 
+kubectl get pods 
+kubectl get pods --show-labels
+kubectl get pods -o wide
+kubectl get pods -o wide --show-labels
+
+kubectl  describe pod <podName>
+kubectl  describe pod <podName> -n <namespace>
+
+	--------------------
+Kubernates Service 
+-------------------
+K8s services make pod exposes to internal cluster or outside cluster or internet.Pod will identify by using lable or selector. 
+Types of Services on k8s 
+  ClusterIP  , NodePort  , LoadBalancer  & Headless	  Service
+ClusterIP Service
+-----------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxsvc
+  namespace: test-ns
+spec:
+  type: ClusterIP
+  selector:
+     app: nginx
+  ports:
+  - port:80
+    targetPort: 80
+--------------
+NodePort Service
+----------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxsvcout
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector:
+    app: nginxpod
+  ports:
+  - port: 80
+    targetPort: 80
+	nodePort: 31002
+----------------------
+LoadBalancer service
+--------------------
+apiVersion: v1
+kind: Service
+metadata: 
+  name: nginxsvclb
+  namespace: test-ns
+spec:
+  type: LoadBalancer
+  selector: 
+    app: nginxpod
+  ports:
+  - port: 80
+    targetPort: 80
+-------------------
+Headless Service
+-----------
+apiVersion: v1
+kind: Service
+metadata:
+   name: nginxheadlesssvc
+   namespace: test-ns
+spec:
+  ClusterIP: None
+  selector:
+    app: mongodb
+  ports:
+  - port: 80
+    tagetPort: 27017
+---------------------
+kubectl get svc 
+kubectl describe svc <nameofsvc> -n <nameofnamespace>
+kubectl get ep
+kubectl get all
+
+ReplicationController  ( equality based selctor )
+-----------------------
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mavenwebapp
+  namespace: test-ns
+spec:
+  replicas: 2
+  slector:
+    app: mavenapp
+  template: 
+    metadata:
+	  labels:
+	    app: mavenwebapp
+    spec:
+	  containers:
+	  - name: mavenwebapp
+	    image: cloudocker123456/mavenwebapp:5
+		ports:
+		- containerPort: 808
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mavenwebappsvc
+  namespace: test-ns
+spec:
+  type: clusterIP
+  selector:
+    app: mavenwebapp
+  ports:
+  - port: 80
+    targetPort: 8080
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mavenapprc
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    app: mavnewebapprc
+  template:
+    metadata:
+	  labels:
+	    app: mavnewebapp
+	spec:
+	  containers:
+	  - name: mavenwebappimage
+	    image: cloudocker123456/mavnewebapp:4
+		ports:
+		- containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+   name: mavenwebappsvc
+   namespace: test-ns
+spec:
+  type: NodePort
+  selcetor:
+    app: mavenwebapp
+  ports:
+  - port: 80
+    targetPort: 8080
+---	
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mavenwebapprc
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    app: mavenwebapp
+  template:
+    metadata:
+      labels:
+        app: mavenwebapp
+    spec:
+      containers:
+      - name: mavenwebapp
+        image: dockerhandson/maven-web-application:1
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mavenwebappsvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector:
+    app: mavenwebapp
+  ports:
+  - port: 80
+    targetPort: 8080
+----
+kubectl apply -f mavnerc.yaml
+kubectl get rc
+kubectl get rc -n test-ns
+kubectl get all
+kubectl scale rc mavenrc --replicas 4
+kubectl decribe rc mavenrcpod
+kubectl delete rc mavenrcpod
+
+kubectl apply -f <filename.yml>
+kubectl get rc 
+kubectl get rc -n <namespace>
+kubectl get all
+kubectl scale rc <rcName> --replicas <noOfReplicas>
+
+kubectl describe rc <rcName>
+kubectl delete rc <rcName>
+
+---------------------------------
+ReplicSet ( set-based sector support , advanced version of rc)
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+   name: mavenapprs
+   namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    matchlables:
+	   app: mavenrs
+  template:
+    metadata:
+	  lebels:
+	     app: mavenapprs
+	spec:
+	  contianers:
+	  - name: mavenappimage
+	    image: cloudocker123456/mavenapp:5
+		ports:
+		- containerPort: 8080
+---
+apiVerion: v1
+kind: Service
+metadata: 
+  name: mavenrssvc
+  namespace: test-ns
+spec:
+  type: ClusterIP
+  sector:
+   app: mavenapprs
+  ports:
+  - port: 80
+    targetPort: 8080
+-----------------------------------------------------------
+Kubectl apply -f mavenapprs.yaml
+kubectl get rs
+kubectl get rs -n test-ns
+kubectl describe rs mavenapprs -n test-ns
+kubectl delete rs mavenapprs
+--------------------------------------------------
+DeamonSet( A
+DaemonSet make sure that all or some kubernetes Nodes run a copy of a Pod.)
+DeamsonSet make sure that all or some kubernates Nodes run a copy of a Pod)
+-------------
+apiVersion: apps/v1
+kind: DeamonSet
+metadata: 
+   name: nginxds
+   namespace: test-ns
+spec:
+  selector:
+    matchLabels:
+	  app: nginxds
+  template:
+    metadata:
+	  lables:
+	    app: nginxapp
+	spec:
+	  containers:
+	  - name: nginximage
+	    image: nginx
+		ports:
+		- containerPort: 80
+---
+apiversion: v1
+kind: Service
+metadata:
+  name: nginxdssvc
+  namespace: test-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: nginxapp
+  ports:
+  - port: 80
+    targetPort: 80
+----------------------
+kubectl apply -f nginxds.yaml
+kubectl get ds -n test-ns
+kubectl describe ds nginxappds -n test-ns -o wide 
+----------------------------------------------------
+Deployment ( ReCreate) ( it will delete all pod and recrete all pod at time)
+-------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mavenappdeploy
+  namespace: test-ns
+spec:
+  replicas: 2
+  sector: 
+    matchLables:
+	   app: mavenapp
+  strategy:
+    type: ReCreate
+  template: 
+    metadata: 
+	   labels:
+	     app: mavenwebapp
+	spec:
+	  containers:
+	  - name: mavenimage
+	    image: cloudocker123456/mavenwebapp:8
+		ports:
+		- containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mavenwebappsvc
+  namespace: test-ns
+spec:
+  type: LoadBalancer
+  selector: 
+    app: mavenwebapp
+  ports:
+  - port: 80
+    targetPort: 8080
+-----------------------------
+Deployment ( RollingUpdate) ( it's slowly one by one delete the pod and slowly one by one create the new pod ) ( high avaliablity appilcation & zero down time ) 
+--------------------------
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mavendeployrollingupdate
+  namespace: test-ns
+spec:
+  replicas: 2
+  sector:
+    matchLabels:
+	  app: mavenapp
+  strategy: 
+    type: RollingUpdate
+    RollingUpdate:
+      maxSurge: 1
+      maxUnavailabe: 1
+  minReadySecond: 30
+  template:
+    metadata:
+      labels:
+        app: mavenapp
+    spec:
+      containers:
+      - name: mavenapp
+        image: cloudocker123456/mavenwebapp:9
+        ports:
+		- containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mavensvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector: 
+    app: mavenapp
+  ports:
+  - port: 80
+    targetPort: 8080
+--------------------------------------------------------
+kubectl apply -f deployment.yaml
+kubectl get deployment -n test-ns
+kubectl describe deployment mavenapp -n test-ns -o wide 
+kubectl scale deployment mavenapp replicas 4
+kubectl rollout status deployment nginx deployment
+kubectl get deployment
+kubectl set image deployment nginx deployment nginx container= nginx:latest record
+kubectl get replicaset
+kubectl rollout history deployment nginx deployment
+kubectl rollout history deployment nginx deployment revision =1
+kubectl rollout undo deployment nginx deployment to revision=1
+-----------------------------------------------------------------------------
+Resouces requests & limits
+--------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mavenapp
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    matchLables: 
+	   app: mavenapp
+  strategy: 
+    type: ReCreate
+  template:
+    metadata:
+	  labels:
+	    app: mavenapp
+    spec:
+	  containers:
+	  - name: mavenappimage
+	    image: cloudocker123456/mavenapp:6
+		ports:
+		- containerPort: 8080
+		resources:
+		  requests: 
+		    cpu: 250m
+		    memory: 500Mi
+		  limits: 
+		    cpu: 500m
+			memory: 750Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mavenappsvc
+  namespace: test-ns
+spec: 
+  type: NodePort
+  selector:
+    app: mavenapp
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+
+Pod Autosscaler 
+----------------------
+Need to install metric server to fetch the resource metric on cluster 
+Official Metrics server Git hub: 
+https://github.com/kubernetes-sigs/metrics-server 
+
+Then HPA object crate on K8S ( HorizontalPodAutoscaler)
+---------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: mavenapphpa
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+	  app: mavenapp
+  strategy: 
+    type: ReCreate
+  template:
+    metadata:
+	  labels:
+	    app: mavenapp
+	spec:
+	  containers:
+	  - name: mavenimage
+	    image: clousocker123456/mavenapp:7
+		ports:
+		- containerPort: 8080
+		resources:
+		  requests:
+		    cpu: "500m"
+			memory: "500Mi"
+		  limits:
+		    cpu: "1000m"
+			memory: "1000Mi"
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: mavenappsvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector: 
+    app: mavenapp
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: autoscaling/v2	
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mavenhpa
+  namespace: test-ns
+spec:
+  scaleTargetRef: 
+     apiVersion: apps/v1
+	 kind: Deployment
+	 name: mavenapphpa
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+	   name: cpu
+	   target: 
+	     type: Utilization
+		 averageUtilization: 40
+  - type: Resource 
+    resource: 
+	  name: memory
+	  target:
+	    type: Utilization
+		averageUtilization: 40
+-----------------------------------------   
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hpadeployment
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 40
+  - type: Resource
+    resource:
+     name: memory
+     target:
+      type: Utilization
+      averageUtilization: 40
+---------------------------------------------------------
+Three tier application 
+------------------------
+# Mongo db pod with volumes(HostPath)
+------------------------------------
+spring boot app ( deploy on Deployment )
+spring boot service create ( NodePort)
+mongodb for store the data base for spring boot app ( deploy on ReplicaSet)
+mongodb service ceate ( ClusterIP)
+----------------------------------
+apiVersion: apps/v1
+kind: Deployment
+medata:
+  name: springapp
+  namespace: test-ns
+spec:
+  replicas: 2
+  selector: 
+    matchLabels:
+	  app: springapp
+  strategy: 
+    type: RollingUpdate
+	RollingUpdate:
+	  maxSurge: 1
+	  maxUnavailabe: 1
+	minReadySecond: 30
+  template: 
+    metadata: 
+	   lables:
+	     app: springapp
+    spec: 
+	  containers:
+	  - name: springimage
+	    image: cloudocker123456/springapp
+		ports:
+		- containerPort: 8080
+		resources:
+		  requests:
+		    cpu: "250m"
+			memory: "500Mi"
+		  limits: 
+		    cpu: "500m"
+			memory: "750Mi"
+		env: 
+		- name: MONGO_DB_HOSTNAME
+		  value: mongosvc
+		- name: MONGO_DB_USERNAME
+		  value: devdb
+		- name: MONGO_DB_PASSWORD
+		  value: devdb@123
+		livenessProbe:
+		  httpGet:
+		    path: /spring
+			port: 8080
+		  initialDelaySeconds: 60
+		  periodSeconds: 30
+		  timeoutSeconds: 5
+		readinessProbe:
+		  httpGet:
+		    path: /spring
+			port: 8080
+		  initialDelaySeconds: 60
+		  periodSeconds: 10
+		  timeoutSeconds: 5
+---
+#spring service NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongosvc
+  namespace: test-ns
+spec:
+  type: NodePort
+  selector:
+    app: springapp
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+#mongodb replicaSet
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: test-ns
+spec:
+  selector:
+    matchLabels:
+	  app: mongodb
+  template:
+    metadata:
+	  labels:
+	    app: mongodb
+	spec:
+	  containers:
+	  - name: mongoimage
+	    image: mongo
+		ports:
+		- containerPort: 27017
+		env:
+		- name: MONGO_INITDB_ROOT_USERNAME
+		  value: devdb
+		- name: MONGO_INITDB_ROOT_PASSWORD
+		  value: devdb@123
+        volueMounts:
+		- name: mongodbhostvol
+		  mountPath: /data/db
+	  volumes:
+	  - name: mongodbhostvol
+	    hostPath:
+		  path: /mongodata
+#     volumes:    
+#     - name: mogodbvol
+#       nfs:                      ### NFS server configuration 
+#         server: 172.31.47.141
+#         path: /mnt/nfs_share		  
+
+---
+apiVersion: v1
+kind: Sevice
+metadata:
+  name: mongodbsvc
+  namespace: test-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort:27017
+----------------------------------------------------------------
+PV : ( Persistent Volume : it's a piece of storgae which attached with kubernates cluster. 
+PVC: (PersistentVolumeClaim : it's claim by user  means we can claim the storage how much we need for cluster 
+
+presistent volume provisioned by two ways statically & dynamically
+------------------------------------------------------------------
+static valume ( it will created by k8s admin)
+dymanic volume ( it will created by kubernates provisioner) as we have configred storageClass. 
+
+PersistentVolume – the low level representation of a storage volume.
+PersistentVolumeClaim – the binding between a Pod and PersistentVolume.
+Pod – a running container that will consume a PersistentVolume.
+StorageClass – allows for dynamic provisioning of PersistentVolumes.
+
+PV Will have Access Modes
+
+ReadWriteOnce – the volume can be mounted as read-write by a single node
+ReadOnlyMany – the volume can be mounted read-only by many nodes
+ReadWriteMany – the volume can be mounted as read-write by many nodes
+
+In the CLI, the access modes are abbreviated to:
+
+RWO - ReadWriteOnce
+ROX - ReadOnlyMany
+RWX - ReadWriteMany
+
+
+Claim Policies
+
+A Persistent Volume Claim can have several different claim policies associated with it including
+
+Retain – When the claim(PVC) is deleted, the volume(PV) will exists.
+Recycle – When the claim is deleted the volume remains but in a state where the data can be manually recovered.
+Delete – The persistent volume is deleted when the claim is deleted.
+The claim policy (associated at the PV and not the PVC) is responsible for what happens to the data on when the claim has been deleted.
+
+Static volumes
+
+Crtaeing PV
+---------
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+  name: pv-hostpath
+  namespace: test-ns
+spec:
+   capacity:
+     staorage: 1Gi
+   accessmodes:
+   - ReadWriteOnce
+   hostPath:
+     path: "/mongodata"
+--------
+apiVersion: v1
+kind: PersistentVolume
+metadata: 
+   name: pv-hostpath
+   namespace: test-ns
+spec:
+   capacity: 
+      storage: 1Gi
+   accessmodes: 
+   - ReadWriteOnce
+   hostPath:
+      path: "/mongodata"
+---------------
+create PVC
+-----
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongopvc
+  namespace: test-ns
+spec:
+   accessModes:
+   - ReadWriteMany
+   resources:
+     requests:
+	   storage: 1Gi
+---
+# Mongo db pod with PVC
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mongodb
+  namespace: test-ns
+spec:
+  replicas:
+  selector:
+    matchLables:
+	   app: mongodb
+  template:
+    metadata:
+	  lables:
+	    app: mongodb
+    spec:
+	  volumes:
+	  - name: mongovol
+	    persistentVolumeClaim:
+		  claimName: mongopvc
+	  containers:
+	  - name: mongoimage
+	    image: mongo
+		ports:
+		- containerPort: 27017
+		env:
+         - name: MONGO_INITDB_ROOT_USERNAME
+           value: devdb
+         - name: MONGO_INITDB_ROOT_PASSWORD
+           value: devdb@123
+        volumeMounts:
+        - name: mongovol
+          mountPath: /data/db
+		env:
+		- name: MONGO_INITDB_ROOT_USERNAME
+		  valueFrom:
+		    configMapKeyRef:
+			  name: springappsecret
+			  key:  mongodbpassword
+		- name: MONGO_INITDB_ROOT_PASSWORD
+		  valueFrom:
+		    secretKeyRef:
+			  name: springappsecret
+			  key: mongodbpassword		    
+----------------------------------
+configMap
+------------
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: sprinfappconfig
+data:
+  mongodbusername: devdb
+
+apiVersion: v1
+kind: ConfigMap
+metadata:      # We can define multiple key value pairs.
+  name: springappconfig
+  namespace: test-ns
+data:
+  mongodbusername: devdb
+------------
+secret 
+-----
+kubectl create secret generic springappsecret --from-literal=mongodbpassword=devdb@123 -n test-ns
+kubectl create secret generic springappsecret --from-literal=mongodbpassword=devdb@123 -n test-ns
+
+apiVersion: v1
+kind: Secret
+metadata: 
+  name: springappsecret
+  namespace: test-ns
+type: opaque
+stringData: 
+  mongodbpassword: devdb@123
+  
+   
+  apiVersion: v1
+kind: Secret
+metadata:
+  name: springappsecret
+  namespace: test-ns
+type: Opaque
+stringData:   # We can define multiple key value pairs.
+  mongodbpassword: devdb@123 
+	  
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: springappconfig
+              key: mongodbusername
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: springappsecret
+              key:  mongodbpassword
+----------------------------------------
+Pull an Image from a Private Registry
+--------------------------------------
+kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=dockerhandson --docker-password=password
+
+kubectl create secret docker-registry regcred --docker-server=   --docker-username= --docker-password=
+kubectl create secret docker-registry nexuscred --docker-server=<nexusurl> --docker-username=admin  --docker-password=<password>
+kubectl create secret docker-registry ecrregistrycredentails --docker-server=  --docker-username=AWS --docker-password=<password>
+
+kubectl create secret docker-registry nexuscred --docker-server=172.31.106.247:8083 --docker-username=admin --docker-password=admin123
+kubectl create secret docker-registry ecrregistrycredentails --docker-server=https://567763916643.dkr.ecr.ap-south-1.amazonaws.com --docker-username=AWS --docker-password=password	
+
+livness probe & readyness prove
+-------------------------------
+    livenessProbe:
+          httpGet:
+            path: /java-web-app
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+	      timeoutSeconds: 5
+    readinessProbe:
+          httpGet:
+            path: /java-web-app
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+---
+	
+			
+StatefulSet :
+ stateful application to deploy 
+ it's has provide unique and ordered identified to pod
+ uniquired identifiy network & storage to pod
+ provided unique storage prosistent volume to each pod
+
+#######MongoDB StatefulSet###########
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  name: mongod
+  namespace: test-ns
+spec:
+  selector: 
+    matchLabels:
+	  app: mongod
+  serviceName: mongodb-service
+  replicas: 3
+  template: 
+    metadata:
+	  lables:
+	    app: mongod
+	spec:
+	terminationGrancePeriodSeconds: 10
+	  containers:
+	  - name: mogodbimage
+	    image: mongo
+		ports:
+		- containerPort: 27017
+		command:
+		 - "mongod"
+		 - "--bind_ip"
+		 - "0.0.0.0"
+		 - "mainRepSet"
+		resources:
+		  requests:
+		    cpu: "250m"
+			memory: "500Mi"
+		  limits:
+		    cpu: "500m"
+			memory: "750Mi"
+		volumeMounts: 
+		- name: mongodb-persistent-storage-claim
+		  mountPath: "/data/db"
+  volumeClaimTemplates:
+  - metadata: 
+      name: mongodb-persistent-storage-claim 
+	spec:
+	  accessModes: [ "ReadWriteOnce"]
+	  resources:
+	     requests:
+		   storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: test-ns
+spec:
+  ClusterIP: None
+  selctor: 
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+-------------------------------
+apiVersion: apps/v1
+kind: statefulSet
+metadata: 
+  name: mongod
+  namespace: test-ns
+spec:
+   selector: 
+     matchlabels:
+	   app: mongod
+   serviceName: mongodb-service
+   replicas: 3
+   template:
+     metadata:
+	   labels:
+	     app: mongod
+	 spec: 
+	  terminationGracePeriodSeconds: 10
+	  containers:
+	  - name: mongodbcontainer
+	    image: mongo
+		command:
+		 - "mongod"
+		 - "--bind_ip"
+		 - "0.0.0.0"
+		 - "--replSet"
+		 - "MainRepSet"
+	  resources:
+	    requests:
+		   cpu: "200m"
+		   memory: "500Mi"
+		limits:
+		   cpu: "500m'
+		   memory: "750Mi"
+		ports:
+		- containerPort: 27017
+	    volumeMounts:
+		- name: mongodb-persistent-storage-claim
+		  mountPath: "/data/db"
+  volumeClaimTemplates:
+   - metadata:
+        name: mongodb-persistent-storage-claim
+     spec:
+	   accessModes: [ "ReadWriteOnce" ]
+	   resources: 
+	     requests: 
+		   storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: mongodb-service
+  namespace: test-ns
+spec:
+  clusterIP: None  
+  selector:
+    app: mongob
+  ports:
+  - port: 27017
+    tagertPort: 27017
+	
+  
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongod
+  namespace: test-ns
+spec:
+  selector:
+    matchLabels:
+      app: mongod
+  serviceName: mongodb-service
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: mongod
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongodbcontainer
+        image: mongo
+        command:
+         - "mongod"
+         - "--bind_ip"
+         - "0.0.0.0"
+         - "--replSet"
+         - "MainRepSet"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongodb-persistent-storage-claim
+          mountPath: "/data/db"
+  volumeClaimTemplates:
+  - metadata:
+      name: mongodb-persistent-storage-claim
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: test-ns
+spec:
+  clusterIP: None # Headless Service
+  selector:
+    app: mongod
+  ports:
+  - port: 27017
+    targetPort: 27017
+ ---------------------------------------------------------
+ 
+Node Selector  Node Affinity And Taints,Tolerations
+------------------------------------------------------
+kubectl get nodes
+kubectl get nodes --show-lables
+kubectl describe node <nodeId>
+Add label to node
+kubectl label nodes <nodeid/name> <key=value>  node=workerOne
+
+Node selcetor
+
+apiVersion: v1
+kind: Deployment
+metadata: 
+  name: javawebapp
+  namespace: test-ns
+spec:
+  replicas: 2
+  selcetor: 
+    matchLabels:
+	  app: javawebapp
+  strategy: RollingUpdate
+    type: RollingUpdate
+    RollingUpdate:
+      maxSurge: 1
+      maxUnavaliable: 1
+  minReadySeconds: 60
+  template:
+    metadata: 
+      lables:
+        app: javawebapp
+    spec:
+	  nodeSector:
+	     name: workerOne
+      containers:
+      - name: javawebappcontainerimage
+        image: cloudocker123456/javawebapp:6
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+             cpu: "250m"
+             memory: "500Mi"
+          limits: 
+             cpu: "500m"
+             memory: "750Mi"
+        linenessProbe:
+		  httpGet:
+		   path: /java
+		   ports: 8080
+		  initialDelaySeconds: 60
+		  periodSeconds: 30
+		  timeoutSeconds: 5
+		readynessProbe:
+          httpGet:
+            path: /java
+            ports: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        		  
+	
+
+
+# Node Selector
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: javawebapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 60
+  template:
+    metadata:
+      name: javawebapp
+      labels:
+        app: javawebapp
+    spec:
+      nodeSelector:
+        name: workerOne
+      containers:
+      - name: javawebapp
+        image: dockerhandson/java-web-app:3
+        ports:
+        - containerPort: 8080
+
+Node Affinity
+
+# requiredDuringSchedulingIgnoredDuringExecution(HardRule)
+
+
+    
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: javawebapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: javawebapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 60
+  template:
+    metadata:
+      name: javawebapp
+      labels:
+        app: javawebapp
+	spec:
+	  affinity:
+	    nodeAffinity:
+          requiredDurringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: "node"
+			    operator: In
+				values:
+				- workerOne
+## preferredDuringSchedulingIgnoredDuringExecution(Soft Rule)  
+	  affinity: 
+        nodeAffinity:
+          preferredDuringSchuldingIgnoredDuringExecution
+          - weight: 1
+		    preference: 
+			 matchExpressions:
+			 - key: name
+			   operator: In
+			   values: 
+			   - workerOne
+	   containers:
+       - name: javawebapp
+         image: dockerhandson/java-web-app:3
+         ports:
+         - containerPort: 8080
+		  	   
+            
+affinity:
+        nodeAffinity:
+         preferredDuringSchedulingIgnoredDuringExecution:
+         - weight: 1
+           preference:
+            matchExpressions:
+            - key: name
+              operator: In
+              values:
+              - workerone			
+    spec:
+      affinity:
+        nodeAffinity:
+         requiredDuringSchedulingIgnoredDuringExecution:
+           nodeSelectorTerms:
+           - matchExpressions:
+             - key: "node"
+               operator: In
+               values:
+               - workerOne
+      containers:
+      - name: javawebapp
+        image: dockerhandson/java-web-app:3
+        ports:
+        - containerPort: 8080
+--------------------------------------------------------------------
+Pod affinity & Pod Anti Affinity
+---------------------------------
+   spec:
+     affinity:
+	   podAffinity:
+	     requiredDurringSchedulingIgnoredDuringExecution:
+		 - labelSelector:
+		     matchExpression:
+			 - key: app
+			   operator: In
+			   values:
+			   - nginx
+		   topologyKey: "kubernates.io/hostname"
+#Pod Anti Affinity
+   spec:
+     affinity:
+	   podAntiAffinity:
+	     requiredDurringSchedulingIgnoredDuringExecution:
+		 - labelSelector:
+		     matchExpressions:
+			 - key: app
+			   operator: In
+			   values: 
+			   - nginx
+		   topologyKey: "kubernates.io/hostname"
+		 
+spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nginx
+            topologyKey: "kubernetes.io/hostname"
+  spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nginx
+            topologyKey: "kubernetes.io/hostname"
+-----------------------------------------------------------------------
+kubectl taint nodes ip-172-31-34-69 node=HatesPods:NoSchedule
+kubectl taint nodes <nodeip> node=hatesPods:NoSchedule
+( it's applied to node to taint ) So that it will never schedule the pod.
+
+Then how to tolaration if any node has taint ?
+   spec:
+      tolerations:
+	  - effect: NoSchedule 
+	    operator: "Exists"
+		key: node
+
+------------------------------
+ResouceQuota & LimitRange
+--------------------------
+apiVersion: v1
+kind; Namespace
+metadata: 
+  name: test-ns
+  lables: 
+    team: testing
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata: 
+  name: test-ns-quota
+  namespace: test-ns
+spec:
+ hard:
+   requests.cpu: "1"
+   requests.memory: "1Gi"
+   limits.cpu: "2"
+   limits.memory: "4Gi"
+   pods: "2"
+   count/de[ployments.app: "1"
+-----------------
+#LimitRange
+---------
+apiVersion: v1
+kind: LimitRange
+metadata: 
+ name: test-ns-limit-range
+ namespace: test-ns
+spec:
+ limits:
+ - default:
+    cpu: 500m
+	memory: 512Mi
+   defaultRequest:
+     cpu: 200m
+     memory: 256Mi
+   type: container
+   
+#Resource Quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: test-ns-quota
+  namespace: test-ns
+spec:
+  hard:
+   requests.cpu: "1"
+   requests.memory: "1Gi"
+   limits.cpu: "2"
+   limits.memory: "4Gi"
+   pods: "2"
+   count/deployments.apps: "1"
+    		
+---
+# LimitRange
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: testns-limit-range
+  namespace: test-ns
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 200m
+      memory: 256Mi
+    type: Container
+----------------------------------------------------
+
+		
+		  
+ 		
+  
+  
+  
+
+
+
+
+  
+  
+		  
+   
+
+
+  
+
+	
+
+

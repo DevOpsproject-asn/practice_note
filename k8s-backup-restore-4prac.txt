@@ -1,0 +1,104 @@
+Kubernates backup & restore 
+---------------------------------
+certificate
+ls /etc/kubernetes/pki   ( to see the all certiifcate of kubernates control plane )
+ls /etc/kubernetes/pki/etcd 
+
+
+first step : create a driectory for store backup
+mkdir backup-certs
+cp -r /etc/kubernates/pki backup-certs
+
+Then, we have  to create snapshot for back of etcd server
+etcd client need to install on your server 
+   # go get github.com/coreos/etcd/etcd1
+etcdctl ( to check etcd installed or not)
+#ETCDCTL_API=3 \
+> etcdctl snapshot save backup-etcd/snapshot.db \
+> --endpoints=https://127.0.0.1:2379 \
+> --cacert=/etc/kubernates/pki/etcd/ca.crt \
+> --cert=/etc/kubernates/pki/etcd/healthcheck-client.crt \
+> --key=/etc/kubernates/pki/etcd/healthcheck-client.key
+ ( we have backed up all etcd server with saved on backup-certs )
+
+kubeadm reset -f  ( to reset the kubeadm of cluster master )
+
+( once typed reset the kubeadm , then if we check kubectl nothing we can find)
+
+Now we can restore 
+------------------------
+Firstly , copy backup data to kubernates  
+i.e  cp -r backup-certs/pki /etc/kubernates/
+
+then 
+#ETCDCTL_API=3 \
+> etcdctl snapshot restore backup-etcd/snapshot.db
+
+
+mv default.etcd/member /var/lib/etcd   ( we need to mpove from default to var/lib/etcd ) 
+kubeadm init --ignore-preflight-errors=DirAvailable--var-lib-etcd   ( once moved we will execute this command to start initiate the kubeadm with var/lib/etcd dir)
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+How to Create SSL/TLS Certificate for Ingress Controller
+-------------------------------------------------------------
+Create a Self Signed Certificate:
+Lets say, I want to create a certificate for the domain knote.learnitguide.com.
+Use openssl command to create a Self Signed SSL / TLS Certificate.
+$openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out knote-ingress-tls.crt -keyout knote-ingress-tls.key -subj "/CN=knote.learnitguide.com/O=knote-ingress-tls"
+Our self signed certificate is created under the local directory.
+
+Next step:
+Create a Secret:
+$kubectl create secret tls knote-ingress-tls --namespace default --key knote-ingress-tls.key --cert knote-ingress-tls.crt
+You can use kubectl get secret command to list out the existing secrets.
+$kubectl get secret
+Make sure the secret we have created is available.
+
+Next step:
+Edit your ingress rule to specify the certificate:
+Add a section for tls under spec. Define the list of host which al are going to use this particular certificate. Finally the specify the secretname with secretName option.
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+ name: example-ingress
+ annotations:
+   ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+   - hosts:
+     - knote.learnitguide.com
+     secretName: knote-ingress-tls
+  rules:
+  - host: knote.learnitguide.com
+    http:
+     paths:
+	  path: /
+      - backend:
+        serviceName: knote
+       servicePort: 80
+
+kubectl apply -f ingressfile.yaml
+
+-----------------------------------------
+ mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.31.12.66:6443 --token w78tif.x46x1st315uvitju \
+        --discovery-token-ca-cert-hash sha256:011a98e98d76c614edf56e0f83207fd1ae5e4ba669cbd38a376312266f839438
+		sudo systemctl stop kubelet
+sudo systemctl stop kube-proxy
+sudo systemctl stop docker

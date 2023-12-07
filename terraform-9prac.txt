@@ -1,0 +1,179 @@
+Terraform directory and file structure ( to create EC2 instance )
+   devawsresource
+      main.tf
+	  terraform.varstf
+	  var.tf
+	  module
+	    aws_instance 
+		   main.tf
+		   outputvalue.tf
+		   var.tf
+		aws_vpc
+		  main.tf
+		  output.tf
+		  var.tf
+		aws_subnet
+		   main.tf
+		   output.tf
+		   var.tf
+		aws_nic
+		   main.tf
+		   output.tf
+		   var.tf
+		aws_sg
+		  main.tf
+		  output.tf
+		  var.tf
+-----------------------------
+		
+		   
+
+
+
+
+Terraform variable data types 
+      string
+      number
+      bool
+	  lists
+	  map
+variable username {
+  type = string
+  default = "world"
+}
+
+variable age {
+  type = number
+  default = 23
+}
+
+output "printvariable" {
+  value = "Hello ${var.username} and your age is ${var.age}"
+}
+
+
+
+Azure Cloud 
+----------------
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = "myResourceGroup"
+  location = "East US"
+}
+
+resource "azurerm_virtual_network" "example" {
+  name                = "myVnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+}
+
+resource "azurerm_subnet" "example" {
+  name                 = "mySubnet"
+  resource_group_name  = azurerm_resource_group.example.name
+  virtual_network_name = azurerm_virtual_network.example.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_public_ip" "example" {
+  name                = "myPublicIP"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  allocation_method  = "Static"
+}
+
+resource "azurerm_network_interface" "example" {
+  name                = "myNIC"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+
+  ip_configuration {
+    name                          = "myNicConfiguration"
+    subnet_id                     = azurerm_subnet.example.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.example.id
+  }
+}
+
+resource "azurerm_virtual_machine" "example" {
+  name                  = "myVM"
+  location              = azurerm_resource_group.example.location
+  resource_group_name   = azurerm_resource_group.example.name
+  network_interface_ids = [azurerm_network_interface.example.id]
+  vm_size               = "Standard_DS1_v2"
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2019-Datacenter"
+    version   = "latest"
+  }
+
+  os_profile {
+    computer_name  = "myvm"
+    admin_username = "adminuser"
+    admin_password = "Password1234!"  # Replace with your desired password
+  }
+
+  os_profile_windows_config {
+    enable_automatic_upgrades = true
+    provision_vm_agent       = true
+  }
+
+  tags = {
+    environment = "dev"
+  }
+}
+------------------------------------
+
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = "myResourceGroup"
+  location = "East US"
+}
+
+resource "azurerm_kubernetes_cluster" "example" {
+  name                = "myAKSCluster"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  dns_prefix          = "myaks"
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_DS2_v2"
+  }
+
+  tags = {
+    environment = "dev"
+  }
+}
+---------------------------------------
+provider "azurerm" {
+  features {}
+}
+
+resource "azurerm_resource_group" "example" {
+  name     = "myResourceGroup"
+  location = "East US"
+}
+
+resource "azurerm_container_registry" "example" {
+  name                = "mycontainerregistry"
+  location            = azurerm_resource_group.example.location
+  resource_group_name = azurerm_resource_group.example.name
+  sku                 = "Basic"
+  admin_enabled       = true
+
+  tags = {
+    environment = "dev"
+  }
+}
+

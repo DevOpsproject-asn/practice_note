@@ -1,0 +1,63 @@
+sonar token
+squ_c2b52727299ea9c910944ac0169b806c64917fe8
+
+http://3.109.202.35:8081/repository/scripted_pipeline_release/
+http://3.109.202.35:8081/repository/scripted_pipeline_snapshot/
+
+node {
+    echo "jenkins build number is : ${env.BUILD_NUMBER}"
+    def mavenHome = tool name: "Maven3.9.0"
+    stage('git checkout'){
+        git credentialsId: 'github-jenkins', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('build'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('checkcodequality'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage('sourcecodedeploytoArtificatory'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+    stage('deploy to tomcat'){
+        sshagent(['tomcatjekins']){
+         sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.14.100:/opt/tomcat/webapps/"
+     }
+    }       
+}
+
+-----------------------------------
+
+def notifySlack(String buildStatus = 'STARTED') {
+    // Build status of null means success.
+    buildStatus = buildStatus ?: 'SUCCESS'
+
+    def color
+
+    if (buildStatus == 'STARTED') {
+        color = '#D4DADF'
+    } else if (buildStatus == 'SUCCESS') {
+        color = '#BDFFC3'
+    } else if (buildStatus == 'UNSTABLE') {
+        color = '#FFFE89'
+    } else {
+        color = '#FF9FA1'
+    }
+
+    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+
+    slackSend(color: color, message: msg)
+}
+
+node {
+    try {
+        notifySlack()
+
+        // Existing build steps.
+    } catch (e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        notifySlack(currentBuild.result)
+    }
+}

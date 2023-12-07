@@ -1,0 +1,154 @@
+Terraform:
+AKIAZSH7PIHFH7FMWC77  access_key
+rFiYuA9Ku0HjIEPAhdSY7fkxfJhpUOcIo0Uql6x0  secret_key
+
+terraform data type 
+
+Terraform supports a number of types, including string, number, bool, list, map, set, object, tuple, and any
+
+
+Terraform module example 
+ main.tf
+ 
+ module "vpc" {
+  source   = "./modules/aws_vpc"
+  vpc_cidr = var.vpc_cidr
+  vpc_name = var.vpc_name
+}
+
+module "subnet" {
+  source      = "./modules/aws_subnet"
+  vpc_id      = module.vpc.vpc_id
+  subnet_cidr = var.subnet_cidr
+  subnet_name = var.subnet_name
+}
+
+module "sg" {
+  source  = "./modules/aws_sg"
+  vpc_id  = module.vpc.vpc_id
+  sg_name = var.sg_name
+}
+
+module "nic" {
+  source      = "./modules/aws_nic"
+  subnet_id   = module.subnet.subnet_id
+  nic_name    = var.nic_name
+  private_ips = var.private_ips
+}
+
+module "instance" {
+  source        = "./modules/aws_instance"
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
+}
+
+module "instance_south_2" {
+  source        = "./modules/aws_instance"
+  providers = {
+     aws = aws.south-2
+  }
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
+}
+----------------------------------------
+ provider.tf 
+ -------------
+ provider "aws" {
+  profile = "myaws"
+  region  = "ap-south-1"
+}
+
+provider "aws" {
+    alias = "south-2"
+      profile = "myaws"
+      region  = "ap-south-2"    
+}
+--------------------------------
+   var.tf
+   ------
+   variable "vpc_cidr" {
+  type    = string
+  default = "172.16.0.0/16"
+}
+
+variable "vpc_name" {
+  type = map(any)
+  default = {
+    "Name" = "tf-example"
+  }
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnet_cidr" {
+  type    = string
+  default = "172.16.10.0/24"
+}
+
+variable "subnet_name" {
+  type = map(any)
+  default = {
+    "Name" = "my_subnet"
+  }
+}
+
+variable "sg_name" {
+  type = map(any)
+  default = {
+    "Name" = "allow_tls"
+  }
+}
+
+variable "subnet_id" {
+  type = string
+}
+
+variable "nic_name" {
+  type = map(any)
+  default = {
+    "Name" = "my_nic"
+  }
+}
+
+variable "private_ips" {
+  type    = list(string)
+  default = ["172.16.10.100"]
+}
+
+
+
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "nic_id" {
+  type = string
+}
+
+variable "instance_name" {
+  type = map(any)
+  default = {
+    "Name" = "PROD-server"
+  }
+}
+
+variable "instance_ami" {
+  type    = string
+  default = "ami-0f5ee92e2d63afc18"
+}
+----------------------------------------------
+Taiwan fashion brand -Twine , koup , Reliance 
+
+As one of the leading intelligent solution providers, Advantech offers a portfolio of solution-ready and service-ready platforms to offer 
+user-centric solutions that are flexible and scalable. Advantech's intelligent solution platform provides a wide range of solutions,
+including self-service kiosks, intelligent POS system, interactive multi-media system, equipment control system, digital signage solution,
+intelligent video analysis, and outpatient service solution. 
+By offering smart, interactive and intelligent solutions in retail, hospitality, public services, banking services, and industrial services, 
+Advantech aims to influence user behavior and lead the next generation intelligent services in all business sectors.

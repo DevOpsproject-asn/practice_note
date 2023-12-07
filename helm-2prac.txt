@@ -1,0 +1,9 @@
+Helm Document
+--------------
+Helm is package manager for kubernentes.
+It allow you to install/update/upgrade/delete kubernetes applications in the cluster similar maner as apt/yum  in linux distribution.
+
+helm introduces below concepts
+    > Charts which are helm packages 
+	> Helm repositories which hold the charts
+	> Helm CLI which install/delete/upgrade by using commands

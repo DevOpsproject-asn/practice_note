@@ -1,0 +1,42 @@
+
+main.tf
+provider "aws" {
+  region = "us-west-2"  # Replace with your desired AWS region
+}
+
+resource "aws_instance" "ec2_instance" {
+  ami           = "ami-0c55b159cbfafe1f0"  # Replace with the desired AMI ID
+  instance_type = "t2.micro"               # Replace with the desired instance type
+
+  tags = {
+    Name = "MyEC2Instance"
+  }
+}
+
+terragrunt.hcl
+terraform {
+  source = "./"  # Path to the folder containing the Terraform configuration (current directory in this case)
+}
+
+remote_state {
+  backend = "s3"
+  config = {
+    bucket = "your-terraform-state-bucket"  # Replace with your S3 bucket name
+    key    = "path/to/aws-ec2/terraform.tfstate"  # Replace with the desired path for your Terraform state file
+    region = "us-west-1"  # Replace with your desired AWS region for the S3 bucket
+  }
+}
+
+# Initialize Terraform modules and backends (S3 bucket)
+terragrunt init
+
+# Plan the infrastructure changes
+terragrunt plan
+
+# Apply the changes to create the EC2 instance
+terragrunt apply
+
+
+
+
+

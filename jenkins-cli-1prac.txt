@@ -1,0 +1,34 @@
+http://3.109.49.90:8080/restart
+http://3.109.49.90:8080/safeRestart
+
+java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" restart
+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
+java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" build JOB 
+build JOB
+
+ wget http://3.109.49.90:8080/jnlpJars/jenkins-cli.jar
+  146  ls
+  147  java -jar jenkins-cli.jar -s http://15.207.86.253:8080/
+  148  java -jar jenkins-cli.jar -s "http://15.207.86.253:8080/" -auth "nayak:nayak" restart
+  149  ls
+  150  vi jenkins-cli.jar
+  151  cd /var/lib/jenkins
+  152  ls
+  153  trail -f audittrial.log.0
+  154  tail -f audittrial.log.0
+  155  ls
+  156  cd jenkinscli/
+  157  ls
+  158  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" restart
+  159  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" build JOB
+  160  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" build 'maven-project'
+  161  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" help
+  162  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" who-am-i
+  163  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" wait-node-online
+  164  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" version
+  165  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" update-view
+  166  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" update-VIEW
+  167  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" help
+  168  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" set-build-display-name
+  169  java -jar jenkins-cli.jar -s "http://65.0.203.80:8080/" -auth "nayak:11125f421617f796cb5e93733063a80672" safe-restart
+  170  history

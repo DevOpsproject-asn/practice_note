@@ -1,0 +1,232 @@
+Azure DevOps
+---------------------
+main componets or process for CI & CD 
+Boards
+Repos
+Pipelines
+Test plans
+Artifacts
+
+
+
+
+
+
+CI& CD in Pipelines 
+----------
+CI ( contineous Intergration): CI is used to automate tests and build for the projects.
+It is used to find bugs or other build issue in early phase.
+CD (contineous Delivery): CD is used to automatically deploy and test code in multiple stages ( environment like dev,qa,staging etc.) to maintain the quality.
+
+When CI & CD are triggered 
+----
+Manually : Anytime you can run the CI,CD pipeline to build and test your code.
+Automatically:
+ > on each commit
+ > on a fix interval
+ > At a particular time
+
+Create a new Build (CI) pipeline 
+-------------------------------
+> How to create new build (CI) pipeline
+> Build project automatically.
+> Get success/error notification on email.
+> View build logs to fix the error.
+
+Azure Acess key 
+cloud.nayak43
+snzlduiy66qr3ybamrkoqepynxrtkdoynhvgqkpqtfqd44aa33qq
+  
+  
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '5.x'
+
+- script: dotnet restore
+  displayName: 'Restore dependencies'
+
+- script: dotnet build --configuration Release
+  displayName: 'Build'
+
+- script: dotnet run --project MyDotNetApp/MyDotNetApp.csproj
+  displayName: 'Run .NET App'
+  
+  
+-----------------------------------------------------------------------
+# Build and run tests for .NET Desktop or Windows classic desktop solutions.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+
+trigger:
+- master
+pool:
+ vmImage: 'ubuntu-latest'
+
+variables:
+ buildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+----------------------------------------------------------------------------------------
+maven project with Azure devops 
+azure-pipelines.yml
+----------------------
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseJavaVersion@1
+  inputs:
+    versionSpec: '11'
+    addToPath: true
+
+- script: mvn clean install
+  displayName: 'Build and Test'
+
+- script: mvn exec:java -Dexec.mainClass="com.example.MyMainClass"
+  displayName: 'Run Maven Application'
+----------------------------------------------------------------------
+Nodejs project with Azure devops 
+------------------------------
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: NodeTool@0
+  inputs:
+    versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+- script: npm install
+  displayName: 'Install Dependencies'
+
+- script: npm run build
+  displayName: 'Build'
+
+- script: npm start
+  displayName: 'Run Node.js Application'
+
+--------------------------------------------------
+python project work with Azure DevOps
+---------------------------------
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: python -m venv venv
+  displayName: 'Create Python Virtual Environment'
+
+- script: source venv/bin/activate
+  displayName: 'Activate Virtual Environment'
+
+- script: pip install -r requirements.txt
+  displayName: 'Install Dependencies'
+
+- script: python my_script.py
+  displayName: 'Run Python Script'
+--------------------------------------------------------------------
+Terraform work with Azure DevOps
+-----------------
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    terraform init
+    terraform plan -out=tfplan
+  displayName: 'Initialize and Plan Terraform'
+
+- script: terraform apply tfplan
+  displayName: 'Apply Terraform Changes'
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+
+- script: terraform destroy
+  displayName: 'Destroy Terraform Resources'
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+  
+-----------------------------------------------------------------------
+Docker project run on Azure DevOps
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: docker build -t my-docker-image:latest .
+  displayName: 'Build Docker Image'
+
+- script: docker run my-docker-image:latest npm test
+  displayName: 'Run Tests'
+
+- script: docker tag my-docker-image:latest myacr.azurecr.io/my-docker-image:latest
+  displayName: 'Tag Docker Image for ACR'
+
+- script: docker push myacr.azurecr.io/my-docker-image:latest
+  displayName: 'Push Docker Image to ACR'
+-----------------------------------------------------------------------------------------
+kubernetes project run on azure DevOps
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseHelmInstaller@0
+  inputs:
+    helmVersionToInstall: 'latest'
+    checkLatestVersion: true
+
+- script: |
+    helm upgrade --install myapp ./path/to/helm/charts/myapp
+    kubectl apply -f ./path/to/kubernetes/manifests
+  displayName: 'Deploy to Kubernetes'
+-----------------------------------------------------------------------------
+
+To setup Azure project with dotnet frame work
+-------------------------
+To set the dotnet frame work in the system.
+Below path to set :
+Control Panel\Programs\Programs and Features
+
+
+
+
+

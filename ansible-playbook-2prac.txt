@@ -1,0 +1,46 @@
+Ansible playbook 
+-------------------
+---
+- hosts: all
+  gather_facts: no
+  remote_user: ansible
+  tasks:
+    - name: Test connection
+      ping:
+      remote_user: ansible
+...
+
+--- 
+- hosts: all
+  gather_facts: no
+  remote-user: ansible
+  tasks:
+    - name: Test connection
+	  ping:
+	  remote_user: ansible
+---
+
+LOOP 
+----
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install packages 
+    yum: name={{ item }} update_cache=yes state=latest
+	with_items:
+	  - vim
+	  - lsof
+	  - nano
+---
+
+- hosts: all
+  become: yes
+
+  tasks:
+   - name: Install Packages
+     yum: name={{ item }} update_cache=yes state=latest
+     with_items:
+       - vim
+       - lsof
+       - nano
+---------------------

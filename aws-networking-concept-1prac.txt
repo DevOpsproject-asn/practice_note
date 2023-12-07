@@ -1,0 +1,54 @@
+Networking with AWS concept:
+------------------------------
+IP Address is short for Internet Protocol Address.
+It is a unique address assigned to each computing device in an IP network.
+ISP assigns IP Address to all the devices present on its network.
+Computing devices use IP Address to identify and communicate with other devices in the IP network.
+
+
+There are two systems in which IP Addresses are classified-
+     classful IP address   & classless system ip address / CIDR ( classless Interdomain Routing)
+Classful Ip address
+-------------------
+In Classful Addressing System, IP Addresses are organized into following 5 classes-
+Class A 
+-----
+In class A IP Address,
+The first 8 bits are used for the Network ID.
+The remaining 24 bits are used for the Host ID.
+
+Class B
+Class C
+Class D
+Class E
+
+Class of IP Address	Total Number of IP Addresses 	1st Octet Decimal Range	Number of Networks available	Hosts per network	Default Subnet Mask
+Class A	231	1 – 126	27 – 2	224 – 2	255.0.0.0    >  0.0.0.0  to 126.255.255.255      > NASA 
+
+Class B	230	128 – 191	214	216 – 2	255.255.0.0  >  128.0.0.0  t0 191.255.255.255    > general purpose
+Class C	229	192 – 223	221	28 – 2	255.255.255.0 >  192.0.0.0  to 224.255.255.255   > general purpose
+Class D	228	224 – 239	Not defined	Not defined	Not defined > 225.0.0.0 to 239.255.255.255   > broad casting purpose 
+Class E	228	240 – 254	Not defined	Not defined	Not defined > 240.0.0.0  to 255.255.255.255  > rearch purpose 
+
+ 
+
+Classless Addressing is an improved IP Addressing system.
+It makes the allocation of IP Addresses more efficient.
+It replaces the older classful addressing system based on classes.
+It is also known as Classless Inter Domain Routing (CIDR).
+ 
+
+Classless Addressing-(CIDR)
+
+Classless Addressing is an improved IP Addressing system.
+It makes the allocation of IP Addresses more efficient.
+It replaces the older classful addressing system based on classes.
+It is also known as Classless Inter Domain Routing (CIDR).
+ 
+ 172.31.0.0/16  how to calculate total ip on CIDR :
+  2^32-n   = 2^32-16 = 2^16 = 65536
+  
+ How many VPC's we can created one region >>> 5 (softlimit adjustable)
+ How many VPC subnet we can make >> 200  ( softlimit adjustable)
+ 
+In subnet first 4 ip and last ip is reserved for AWS.

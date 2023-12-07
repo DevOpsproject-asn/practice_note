@@ -1,0 +1,24 @@
+https://www.eassymall.com/product/7-hd-gps-navigation-system-8g-voice-guidance-and-directional-eu-1?gclid=CjwKCAjwitShBhA6EiwAq3RqAyFXWAgvVkWsWBfxIXahFDr524_nkJ-nphNXB7UiNtqhvf2O9cqvcxoCxoYQAvD_BwE
+
+
+
+
+Monitoring Tools:
+
+Application monitoring tools
+---------------------------
+Nagios
+Zabix
+NewRelic
+Premethous
+grafana --- data visualization 
+
+Log Monitoring tools
+----------------------
+ELK
+SPLUNK
+Logenties
+fluentd
+
+https//newrelic.com
+

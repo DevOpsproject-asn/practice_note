@@ -1,0 +1,61 @@
+Azure storage 
+-------------
+https://learn.microsoft.com/en-us/cli/azure/reference-docs-index
+
+About Azure Storage Service and Storage Account:
+Cloud computing enables new scenarios for applications requiring scalable, durable, and highly available storage for their data – which is exactly 
+why Microsoft developed Azure Storage Service. 
+
+
+• Azure Storage is a PaaS service that you can use to store both unstructured and partially structured data. 
+• Azure Storage is massively scalable and elastic: It can store and process hundreds of terabytes of data to support the big data scenarios required 
+  by scientific, financial analysis, and media applications. Or you can store the small amounts of data required for a small business website. 
+
+
+• By default, you can create up to 100 storage accounts in a single Azure subscription. Each standard storage account can contain up to 500 TB of 
+  combined blob, queue, table, and file data. 
+• As the demands on your storage application grow, Azure Storage automatically allocates the appropriate resources to meet them. We are charged 
+  only for what we use. 
+ 
+Azure Storage Account:
+
+An Azure storage account is a secure account that gives you access to services in Azure Storage. Your storage account provides a unique namespace 
+for your storage resources. There are two types of storage accounts: 
+  1. A standard storage account includes Blob, Table, Queue, and File storage. 
+  2. A premium storage account currently supports Azure Virtual Machine disks only. 
+ 
+It offers four types of storage services, depending on the type of data that they are designed to store: 
+
+
+1. Blob Storage stores file data. A blob can be any type of text or binary data, such as a document, media file, or application installer. 
+   Blob Storage is sometimes referred to as Object storage. 
+
+
+2. Table Storage stores partially structured datasets. Table storage is a NoSQL key-attribute data store, which allows for rapid development and 
+   fast access to large quantities of data. 
+
+
+3. Queue Storage provides reliable messaging for workflow processing and for communication between components of cloud services. 
+
+
+4. File Storage Similar to blobs, these provide storage for unstructured files, but they offer support for file sharing in the same manner as 
+   traditional on-premises Windows file shares.  
+
+How To Create a Storage Account:
+1. Azure Portal - Browse Storage Accounts - New - Data + Storage - Storage account 
+2. Enter Name (must be all lowercase)  
+3. Deployment Model = Resource Manager 
+4. and select Subscription, Resource Group, Location 
+5. Account Kind: Storage (general purpose v1) / StorageV2 (general purpose v2) / Blob Storage  
+Note: A Blob storage account is a specialized storage account for storing your unstructured data as blobs (objects) in Azure Storage. 
+      For applications requiring only block or append blob storage, we recommend using Blob storage accounts. 
+6.Performance: Standard / Premium  
+Standard use HDD Drives and Premium use SSD Drives 
+Premium is used only for disks of VMs 
+
+PowerShell Command to Create Storage Account 
+Login-AzureRmAccount 
+Create a storage account. 
+•New-AzureRmStorageAccount -ResourceGroupName "DemoRG" -Name "dssdemostorage"  -SkuName Standard_LRS -Location 'South India'  
+  Modify storage account properties, such as type. 
+•Set-AzureRmStorageAccount -ResourceGroupName "DemoRG" -AccountName "dssdemostorage" -Type "Standard_RAGRS" 

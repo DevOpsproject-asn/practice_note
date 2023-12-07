@@ -1,0 +1,67 @@
+kubeadm init --control-plane-endpoint "13.233.56.241:6443"
+
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each a                                                       s root:
+
+kubeadm join 172.31.12.37:6443 --token mrmkj9.n3duot66gyt7f92d \
+        --discovery-token-ca-cert-hash sha256:dc5d66f4d8276c636cc048f2982197392                                                       8d5d01e40db163eab022c4610e01da2
+
+
+HAproxy setup for loadbalancing of K8s servers 
+-----------------------------------------------
+Firstly update the ubuntu servers
+ then install haproxy :  apt install haproxy -y
+second : Do configuration set of on haproxy.cfg file
+   vi /etc/haproxy/haproxy.cfg
+frontend fe-apiserver
+      bind 0.0.0.0:6445
+      mode tcp
+      option tcplog
+      default_backend  be-backend
+backend be-apiserver
+      mode tcp
+      option tcplog
+      option tcp-check
+      balance roundrobin
+      default-server inter 10s downinter 5s rise 2 fall 2 slowstart 60s maxconn 250 maxqueue 256 weight 100
+                  server master 1  172.31.12.37:6443 check
+                  server master 2  172.31.3.226:6443 check
+                  server master 3  172.31.4.174:6443 check
+				  
+				  
+#HAProxy for web servers
+frontend web-frontend
+  bind 192.46.209.80:80
+  mode http
+  default_backend web-backend
+
+backend web-backend
+  balance roundrobin
+  server server1 192.46.209.80 check port 80
+  server server2 192.46.209.82 check port 80
+  
+  frontend web-frontend
+  bind 192.46.209.80:541
+  mode http
+  default_backend web-backend
+
+backend web-backend
+  balance roundrobin
+  server server1 192.46.209.80 check port 80
+  server server2 192.46.209.82 check port 80

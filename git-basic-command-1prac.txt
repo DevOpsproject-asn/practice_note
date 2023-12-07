@@ -1,0 +1,162 @@
+  1  ls
+    2  cd project/
+    3  ls
+    4  git branch devloper
+    5  git barnch
+    6  git branch
+    7  ls
+    8  cd java
+    9  ls
+   10  git beanch
+   11  git branch
+   12  git branch bugfix
+   13  git branch UAT
+   14  git branch dev
+   15  git feature
+   16  git branch feature
+   17  git branch
+   18  git checkout dev
+   19  git branch
+   20  git rebase master dev
+   21  ls
+   22  git status
+   23  git branch
+   24  git status add .
+   25  git add .
+   26  git status
+   27  git checkout master
+   28  git status
+   29  git checkout dev
+   30  git status
+   31  git commit ls
+   32  git commit -m "new update"
+   33  git status
+   34  git push origin master
+   35  git status
+   36  ls
+   37  git branch -v
+   38  git push origin -all
+   39  git push origin --all
+   40  git branch -v
+   41  git checkout feature
+   42  git branch
+   43  git rebase dev feature
+   44  ls
+   45  git status
+   46  git checkout UAT
+   47  ls
+   48  git checkout feature
+   49  ls
+   50  git checkout bugfix
+   51  ls
+   52  git rebase dev bugfix
+   53  ls
+   54  git status
+   55  git log
+   56  git status
+   57  touch data10.py
+   58  git status
+   59  git add .
+   60  git commit -m "updated"
+   61  git status
+   62  git push origin
+   63  git push origin bugfix
+   64  git merge master
+   65  git branch master
+   66  git branch
+   67  git checkout master
+   68  ls
+   69  git status
+   70  git merge bugfix
+   71  ls
+   72  git status
+   73  git rebase master feature
+   74  git branch feature
+   75  ls
+   76  git status
+   77  clear
+   78  git branch
+   79  touch data5.py
+   80  touch data6.py
+   81  ls
+   82  git status
+   83  git add data5.py
+   84  git status
+   85  ls
+   86  git branch
+   87  git rebase feature dev
+   88  git commit -m "new"
+   89  git rebase feature dev
+   90  ls
+   91  git branch dev
+   92  git checkout dev
+   93  git branch
+   94  ls
+   95  git status
+   96  git checkout feature
+   97  git branch
+   98  git checkout bugfix
+   99  git merge feature
+  100  ls
+  101  git satus
+  102  git status
+  103  ls
+  104  git add .
+  105  git commit -m "new data"
+  106  git status
+  107  git push origin bugfix
+  108  git status
+  109  git branch
+  110  git merge master
+  111  git push origin
+  112  git push origin bugfix
+  113  git branch master
+  114  git ls
+  115  git status
+  116  ls
+  117  git push origin master
+  118  git status
+  119  ls
+  120  git status
+  121  git rebase bugfix master
+  122  git push origin master
+  123  git status
+  124  ls
+  125  touch data8.txt
+  126  git commit -m -a " new'
+"
+  127  git commit -a -m "new"
+  128  git add .
+  129  git status
+  130  git commit -m "new"
+  131  git status
+  132  ls
+  133  git push tag
+  134  clea
+  135  clear
+  136  git branch -d bugfix
+  137  git branch
+  138  git push origin : bugfix
+  139  git push origin: bugfix
+  140  git push origin:bugfix
+  141  git branch
+  142  git push origin --delete bugfix
+  143  git branch -v
+  144  git tag
+  145  git tag final-release
+  146  git tag
+  147  git push origin tag final-release
+  148  git tag -v
+  149  git tag
+  150  git status
+  151  git ls-remote --tags origin
+  152  git tag
+  153  git tags
+  154  git stage
+  155  git tag
+  156  git ls-remote --tags origin
+
+18ba56fbb13b2181f9029db07933385d1e9665aa
+1cf29e64ad92003e26ac02f26b7147587f493e68
+1cf29e64ad92003e26ac02f26b7147587f493e68 
+68bb04e068fe8f89d67c3776e3790526eab3de48

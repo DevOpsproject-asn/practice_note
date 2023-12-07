@@ -1,0 +1,14 @@
+Python Tutorial: 10-AUG-2023
+----------------
+Bsics:
+1.Print()-->Print on console
+2.input()-->Take user input
+3.Data Types:
+	global and local variable --->Completed
+	a>premitive:- int,float,string,bool -->Completed
+	b>user defined:list,tupple,dictinary,set,class
+	
+4.generator,decorator
+5.control statement,loops(for , while)
+6.Function
+7.File operation(read,write)

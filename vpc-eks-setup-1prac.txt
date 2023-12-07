@@ -1,0 +1,10 @@
+EKS VPC creation
+--------------------
+step-1 : create the VPC  ( 10.0.0.0/24)
+step-2 : create subnet with minimum two zone and create private & public two minimum subnet
+         private1: 10.0.0.0/26 , private2: 10.0.0.64/26 , public1: 10.0.0.128/26 , public2: 10.0.0.192/26
+step-3 : create IGW 
+step-4 : create NAT and one pubic ip attach and IP
+step-5 : Create Route table for private & public subnet 
+         For private rt add subnet assiciation with private subnet  and route with NAT.
+		 for public rt add public subnet assiciation with public subnet  and route with IGW.

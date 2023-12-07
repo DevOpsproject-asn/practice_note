@@ -1,0 +1,251 @@
+Ansible :
+------------
+Ping module ansible yaml file ( WITHOUT FACT) 
+vi ping.yaml
+---
+- hosts: all
+  gather_facts: no
+  remote_user: ansible
+  tasks: 
+    - name: test connection
+	  ping:
+	  remote_user: ansible
+...
+-----------------------------------
+with fact ping module
+--------------------
+---
+- hosts: all
+  gather_facts: yes
+  remote_user: ansible
+  tasks: 
+    - name: test connection
+	  ping:
+	  remote_user: ansible
+...
+--------------------------------------
+create a file
+--------
+---
+- hosts: all
+  gather_facts: no
+  remote_user: ansible
+  tasks:
+    - name: create a file
+	  file:
+	    path: /tmp/data.txt
+		state: touch
+...
+-----------------------------------
+install HTTPD server
+-------------
+---
+- hosts: all
+  gather_facts: no
+  remote_user: ansible
+  become: true
+  tasks:
+    - name: install HTTPD server
+	  yum: 
+	    name: httpd
+		state: present
+		update_cache: yes
+...
+-------------------------------------------
+
+HTTP server start
+-------------------
+---
+- hosts: all
+  gather_facts: no
+  become: true
+  tasks:
+    - name: install HTTPD server
+	  yum: name=httpd update_cache=yes state=present
+    - name: start httpd service
+      service: name=httpd enabled=yes state=started
+    - name: insert index page
+      template:
+        src: index.html
+        dest: /var/www/html/index.html
+...
+-------------------------------------------------
+HTTP server install with handler
+----------------
+---
+- hosts: all
+  gather-facts: no
+  become: true
+  tasks:
+   - name: install httpd server
+     yum: name=httpd update_cache=yes state=present
+     notify: 
+      - start http server
+  handlers:
+    - name: start http server
+      service: 
+        name: httpd
+        state: restarted
+...
+--------------------------------------------------
+command module
+-----------------
+---
+- hosts: localhost
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Display the date
+	  command: date
+	  register: dateoutput
+	  ignore-errors: yes
+	- name: Display the output of dateoutput
+	  debug:
+	    msg: "{{dateoutput}}"
+	- name: Display the output of std.sateoutput
+	  debug:
+	    msg: "{{dateoutput.stdout}}"
+	- name: Display the output error dtaeoutput
+	  debug:
+	    msg: "{{datoutput.stderr}}"
+...
+-----------------------------------------------------
+copy module use:
+-----------------
+---
+- hosts: all
+  gather_facts: no
+  become: true
+  tasks:
+    - name: copy file to node servers
+	  copy: 
+	    src: /data.txt
+		dest: /tmp/data.txt
+		owner: root
+		group: root
+		mode: 0777
+...
+---------------------------------
+loop concept for module to apply
+---------------
+---
+- hosts: all
+  become: true
+  tasks:
+   - name: install required packages
+     yum: name='{{item}}' update_cache=yes state=present
+	 with-items:
+	  - httpd
+	  - wget
+	  - tree
+	  - vim
+	  - zip
+	  - unzip
+	  - tar
+...
+---------------------------------------
+loop 2 method tolist of packages
+---------------------
+---
+- hosts: all
+  become: true
+  tasks:
+   - name: Install list of packages
+     yum: 
+	   name: ['httpd', 'wget', 'vim', 'tree']
+---
+--------------------------------------
+---
+ - hosts: all
+   vars:
+     - devops_password: 'abcddefsfdfdfdfdfdfdfdfdfdfd'
+   gather_facts: no
+   remote_user: ubuntu
+   become: true
+tasks:
+- name: Add a new user named devops
+     user:
+          name: devops
+          shell: /bin/bash
+          password: "{{ devops_password }}"
+- name: Add devops user to the sudoers
+     copy:
+          dest: "/etc/sudoers.d/devops"
+          content: "devops  ALL=(ALL)  NOPASSWD: ALL"
+- name: Deploy SSH Key
+     authorized_key: user=devops
+                     key="{{ lookup('file', '/home/devops/.ssh/id_rsa.pub') }}"
+                     state=present
+- name: Disable Password Authentication
+     lineinfile:
+           dest=/etc/ssh/sshd_config
+           regexp='^PasswordAuthentication'
+           line="PasswordAuthentication no"
+           state=present
+           backup=yes
+- name: Disable Root Login
+     lineinfile:
+           dest=/etc/ssh/sshd_config
+           regexp='^PermitRootLogin'
+           line="PermitRootLogin no"
+           state=present
+           backup=yes
+     notify:
+       - restart ssh
+handlers:
+   - name: restart ssh
+     service:
+       name=sshd
+       state=restarted
+---------------------------------------------------
+---
+# Original idea by quangvnm, modified to get working
+# Change username, oldpass and newpass to yours
+
+- hosts: all
+  gather_facts: no
+  tasks:
+  - name: Set password if expired
+    delegate_to: 127.0.0.1
+    become: no
+    expect:
+      command: ssh -o "StrictHostKeyChecking=no" username@{{ inventory_hostname }}
+      timeout: 5
+      responses:
+        "password:":
+          - "oldpass"
+          - "oldpass"
+          - "newpass"
+          - "newpass"
+        # if succesfully login then quit
+        "\\~\\]\\$": exit
+    register: status
+    changed_when: "'authentication tokens updated successfully' in status.stdout"
+
+  - debug: var=status
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+		
+
+
+
+

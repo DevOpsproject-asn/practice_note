@@ -1,0 +1,130 @@
+https://devdocs.io/terraform/providers/google/r/compute_subnetwork
+Terraform Doc
+---------------
+provider "google" {
+  project = "{{YOUR GCP PROJECT}}"
+  region  = "us-central1"
+  zone    = "us-central1-c"
+}
+
+Creating VM
+-------------
+resource "google_compute_instance" "vm_instance" {
+  name         = "terraform-instance"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    # A default network is created for all GCP projects
+    network = "default"
+    access_config {
+    }
+  }
+}
+
+vpc ceate
+---------
+resource "google_compute_network" "vpc_network" {
+  name                    = "terraform-network"
+  auto_create_subnetworks = "true"
+}
+
+--------------------------
+complete 
+--------
+provider "google" {
+  project = "{{YOUR GCP PROJECT}}"
+  region  = "us-central1"
+  zone    = "us-central1-c"
+}
+
+resource "google_compute_instance" "vm_instance" {
+  name         = "terraform-instance"
+  machine_type = "e2-micro"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    # A default network is created for all GCP projects
+    network = google_compute_network.vpc_network.self_link
+    access_config {
+    }
+  }
+}
+
+resource "google_compute_network" "vpc_network" {
+  name                    = "terraform-network"
+  auto_create_subnetworks = "true"
+}
+
+
+------------------------------
+
+
+
+
+
+Terraform using create GCp resources 
+-------------------------------------
+ Create GCP VPC using terraform 
+ --------------------------------
+resource "google_compute_network" "vpc_network" {
+  name                    = "my-custom-mode-network"
+  auto_create_subnetworks = false
+  mtu                     = 1460
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "my-custom-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-west1"
+  network       = google_compute_network.vpc_network.id
+}
+
+============================================================
+GCP : S3 create bucket by terraform
+-----------------------------------
+resource "random_id" "bucket_prefix" {
+  byte_length = 8
+}
+
+resource "google_storage_bucket" "static" {
+  name          = "${random_id.bucket_prefix.hex}-new-bucket"
+  location      = "US"
+  storage_class = "COLDLINE"
+
+  uniform_bucket_level_access = true
+}
+resource "google_storage_bucket_object" "default" {
+  name = "new-object"
+  # Uncomment and add valid path to an object.
+  #  source       = "/path/to/an/object"
+  content      = "Data as string to be uploaded"
+  content_type = "text/plain"
+  bucket       = google_storage_bucket.static.id
+}
+data "google_storage_bucket_object" "default" {
+  name   = google_storage_bucket_object.default.name
+  bucket = google_storage_bucket.static.id
+}
+
+output "object_metadata" {
+  value = data.google_storage_bucket_object.default
+}
+data "google_storage_bucket" "default" {
+  name = google_storage_bucket.static.id
+}
+
+output "bucket_metadata" {
+  value = data.google_storage_bucket.default
+}
+---------------------------------------------------

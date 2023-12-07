@@ -1,0 +1,118 @@
+Jenkins file 
+--------------
+@Library ('my-shared-library)_
+
+pipeline {
+   agent {
+   label "name"
+   }
+   tools{
+     maven "maven3.9.2"
+	 }
+   stages {
+     stage ('git checkout') {
+	   steps{
+	     gitcheckout(
+		    branch: "main",
+			url: "https://github.com/cloudtechnoli/maven-web-application.git"
+			)
+			}
+		}
+	 stage('Unit test maven') {
+	   steps{
+	     script{
+		  mvnTest()
+		    }
+		}
+	}
+}	
+     		
+----------------------	
+		
+
+@Library('my-shared-library') _
+
+pipeline{
+
+    agent any
+    tools{
+     maven 'maven3.8.1'
+
+      }
+    stages{
+
+        stage('Git Checkout'){
+            steps{
+            gitCheckout(
+                branch: "main",
+                url: "https://github.com/cloudtechnoli/maven-web-application.git"
+            )
+            }
+        }
+        stage('Unit test maven'){
+          steps{
+            script{
+              mvnTest()
+                  }
+              }
+
+        }
+     }
+}
+------------------------------
+node {
+
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([pollSCM(ignorePostCommitHooks: true, scmpoll_spec: '* * * * *')])])
+def mavenHome = tool name: "maven3.8.6"
+try {
+stage('CheckoutCode'){
+git credentialsId: 'a959c0e9-2f79-4e41-92d7-6985cec4ef70', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+}
+stage('Build'){
+sh "${mavenHome}/bin/mvn clean package "
+}
+stage('ExcuteSonarQubereport'){
+sh "${mavenHome}/bin/mvn sonar:sonar"
+}
+stage('UploadArtifactintoNexus'){ 
+sh "${mavenHome}/bin/mvn deploy"
+}
+stage('DeployAppintoTomcat'){
+sshagent(['db7e99c0-f2a7-4f1e-b352-c6a7cc045bd5']){
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@172.31.42.155:/opt/apache-tomcat-9.0.68/webapps/"
+}
+}
+}//end try block
+
+catch(e){
+currentBuild.result = "FAILED"
+}//end catch block close
+
+finally{
+ notifyBuild(currentBuild.result)
+ }//end finally closing
+ }//node closing
+def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+
+// Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+  // Send notification
+  slackSend (color: colorCode,message: summary)
+}

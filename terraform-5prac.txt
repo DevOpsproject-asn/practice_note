@@ -1,0 +1,29 @@
+link:
+https://devdocs.io/terraform/providers/aws/r/s3_bucket_notification
+
+access_key = AKIAZSH7PIHFMF7ZBYHI
+secret_key = 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
+
+provider "aws" {
+  region     = "ap-south-1"
+  access_key = "AKIAZSH7PIHFMF7ZBYHI"
+  secret_key = "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"
+}
+resource "aws_s3_bucket" "s3bucket"{
+  bucket = "my-tf-test-bucket"
+  acl    = "private"
+  versioning {
+    enabled = true
+  }
+  lifecycle {
+    enabled = true
+    transition {
+	  days = 10
+	  storage_class = "STANDARD_IA"
+	  }
+	transition
+  tags {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}

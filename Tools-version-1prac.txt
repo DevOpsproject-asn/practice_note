@@ -1,0 +1,7 @@
+Devops Tool all Current version
+-------------------------------
+Jenkins- 2.387.2
+tomcat - Apache Tomcat/9.0.73
+nexus - Sonartype nexus-3.52.0
+sonarqube- Version 9.6.1 (build 59531)
+

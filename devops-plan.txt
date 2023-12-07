@@ -1,0 +1,154 @@
+Linux 
+   > Networking command with troubleshouting
+   > file editable command like ( awk, sed, grep)
+   > Basic commands 
+   > directory structure
+   > Disk commands and Volume management.
+   > DNS & DHCP
+   
+Shell scripting
+   > find the log 
+   > monitor the server cpu,ram,disk utilization and network latency 
+   > installation packages 
+   > update package & reposiotories 
+   > file transfor 
+   > user creation by shell script 
+   
+AWS 
+   > EC2 
+      Instance types
+	  EBS snapshot   	   
+   > S3
+      Standard storage service
+	  IA
+	  Glacier
+	 Storage policy
+   > VPC
+      vpc create 
+	     > subnet
+		 > InternatGateway
+		 > RouteTable
+		 > Nat
+		 > SG
+	  VPC peering 
+   > ELB
+      >Type:  Application , Networking & classic
+	  > TagetGroup
+	  > listener
+	  > Policy 
+	  
+   > AutoScaling
+      > launch configuration ( EC2 snapshot image need to create first )
+	  > AutoScaling Group
+	  > scaling plan
+   > Route53
+   > Databases( MySql, RDS, DynmoDB)
+   > ECR
+   > EKS
+   > CloudWatch
+   > SNS
+   > Lambda
+   > CloudFormation
+Terraform 
+  packer ( to create AMI for support multiple cloud platform)
+Jenkins
+Ansible 
+Maven
+SonarQube
+Nexus
+Tomcat  > weblogic
+Docker 
+Kubernetes
+    > architecture 
+	> objects 
+	    service ( cluterIP,NodePort,LoadBalancer, Headless , Ingress rule, Ingress manager)
+	    ReplicationController 
+		ReplicaSet
+		DeamonSet
+		Deployment 
+	        Recreate 
+			RollingUpdate
+		StatefulSet 
+		PersistentVolume
+		PersistentvolumeClaim
+		storageClass
+		provisioning nfs, EBS, etc...
+		HPA( HorizonatalPodAutoscaler)
+		ConfigMap
+		Secrets
+		Ingress
+		Network
+		ResourceQuota
+		RBAC
+	EKS
+	Promethus
+	Grafana
+	ELK/EFK ( Elasticsearch Fluentd kibana , Elasticsearch logstash Kibana)
+Jenkins 
+   > Installtion & configuration
+   > user add snd permission provided ( Rule based Authentication )
+   > Pulgin management 
+   > Back up & restore 
+   > upgrade jenkins server 
+   > Log management 
+   > Jenkins pipeline ( scripted & Declarative DSL Groovy script)
+   > jenkins shared library
+   > Various project ( Freestyle, pipeline, maven , multi pipeline, etc...)
+-------------------------------------------------------------------------------
+Azure 
+  > Azure virtual, 
+  > storage: Blob,cool, Archive ;
+  > Azure Virtual Network (Vnet), 
+  > AKS ( Azure Kubernetes Service), 
+  > Azure container Registry, 
+  > Load Balancer for Azure
+    
+Azure DevOps
+  > Overview
+      - Summary
+	  - Dashboards
+	  - Wiki
+  > Board
+     - work items
+	 - Boards
+	 - Backlogs
+	 - Sprints
+	 - Queries 
+	 - Delivery plans
+	 - Analytics views
+  > Repos
+      - Files
+	  - Commits
+	  - Pushes
+	  - Branches
+	  - Tags
+	  - Pull Requests
+  > Pipeline
+      - pipelines
+	  - Environments
+	  - Releases
+	  - Library
+	  - Task Groups
+	  - Deployment Groups
+  > Tests
+      - Test plans
+	  - Progress reports
+	  - Runs
+  > Artifacts
+     - 
+  
+Terraform using create resoureser on Azure
+Python
+Python boto3
+
+--------------------------------------------------------------------------
+GCP ( Google Cloud Platform )
+  > compute Engine 
+  > GKE ( Google Kubernates Engine)
+  > Virtual Private Network
+  > Storgae (cloud, nearline/coldline, archive)
+  > Docker container registry
+  > Cloud Load balancing  
+  
+	
+

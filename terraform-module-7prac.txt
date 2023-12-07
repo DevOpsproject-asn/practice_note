@@ -1,0 +1,317 @@
+ 
+ 
+ 
+ Terraform Module 
+ -------------------
+1. Root & Child Modules
+2. output values from modules
+3. Use output values as inputs to other modules/ resources
+4. Meta arguments like source & version
+5. Folder architecture for designing modules
+6. tfvars
+7. one modules can use multiple providers
+8. Creating Multiple Resources
+9. For_each loops
+10. Config folder
+
+
+
+Resource used ....
+1. vpc
+2. subnet
+3. Security Group
+4. NIC
+5. Instance
+
+-------------------------------------------
+ 
+provider "aws" {
+    profile = "myaws"
+    region = "ap-south-1"  
+}
+#--------------AWS VPC---------------------
+resource "aws_vpc" "my_vpc" {
+    cidr_block = "172.16.0.0/16"
+
+    tags = {
+        Name = "tf-example"
+    }
+}
+#------------------AWS Subnet------------------
+resource "aws_subnet" "my_subnet" {
+    vpc_id  = aws_vpc.my_vpc.id
+    cidr_block = "172.16.10.0/24"
+    availability_zone = "ap-south-1"
+
+    tags = {
+        Name = "tf-example"
+    }
+}
+#-------------------AWS SG--------------------
+resource "aws_security-group" "allow_tls"  {
+    name = "allow_tls"
+    description = "Allow TLS inbound traffic"
+    vpc_id  = aws_vpc.my_vpc.id 
+
+    ingress {
+        description = "TLS from VPC"
+        from_port = 443
+        to_port = 443
+        protocol =  "tcp"
+        cidr_blocks = [aws_vpc.my_vpc.cidr_block]
+    }
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_block = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    } 
+     
+    tags = {
+        Name = "allow_tls"
+    }
+}
+#--------------------AWS_NIC Attached to AWS instance----------------------------
+resoucre "aws_network_interface" "foo" {
+    subnet_id = aws_subnet.my_subnet.id 
+    private_ips = ["172.16.10.100"]
+
+    tags = {
+        Name = "primary_network_interface"
+    }
+}
+#--------------------AWS INSTANCE-------------------------------
+resource "aws_instance" "foo" {
+    ami = "ami-"
+    instance_type = "t2.micro"
+
+    network_interface {
+       network_interface_id = aws_network_interface.foo.id 
+       device_index = 0
+    }
+    tags = {
+        "Name" = "PROD Server"
+    }
+}
+
+-------------------------------------------------------
+       Module dir structure
+	   -----------------------
+To make folder for Module and inside make each resource module folder 
+            Terraform_Module_example    
+				main.tf
+				provider.tf
+				Module  
+					 aws_vpc
+					   main.tf
+					   var.tf
+					   output.tf
+					 aws_subnet
+					   main.tf
+					   var.tf
+					   output.tf
+					 aws_sg
+					   main.tf
+					   var.tf
+					   output.tf 
+					 aws_nic
+					   main.tf
+					   var.tf
+					   output.tf
+					 aws_instance
+					   main.tf
+					   var.tf
+					   output.tf
+---------------------------------------------------------
+				
+#terraform plan --vars-file="config/terraform.tfvars"
+
+  
+Modules
+  aws_vpc 
+     main.tf
+	 -------
+	 resource "aw_vpc" "my_vpc_demo" {
+    cidr_block = var.vpc-cidr
+    tags = var.vpc-name
+}
+
+/*
+resource "aws_vpc" "my_vpc" {
+   cidr_block = "172.16.0.0/16"
+
+   tags = {
+       Name = "tf-example"
+   }
+}
+*/
+-------------------
+   var.tf
+   ------
+   variable "vpc_cidr" {
+    type = string
+    default = "172.16.0.0/16"
+}
+
+variable "vpc_name" {
+    type = map(any)
+    default = {
+        "Name" = "tf-vpc"
+    }
+}
+-------------------
+  output.tf
+  ---------
+  output "vpc_id" {
+    value = aws_vpc.my_vpc-demo.id
+}
+
+===================================================
+       aws_subnet
+         main.tf
+    resource "aws_subnet" "my_subnet" {
+    vpc_id = var.vpc_id 
+    subnet_cidr = var.subnet_cidr
+    tags =  var.subnet_name
+
+}
+
+/*
+resource "aws_subnet" "my_subnet" {
+    vpc_id  = aws_vpc.my_vpc.id
+    cidr_block = "172.16.10.0/24"
+    availability_zone = "ap-south-1"
+
+    tags = {
+        Name = "tf-example"
+    }
+}
+*/
+----------------------------
+        var.tf
+       variable "subnet-cidr" {
+         type = string
+         default = "172.16.10.0/24"
+       }
+      variable "subnet_name" {
+        type = map(any)
+        default = {
+           "Name" = "tf-subnet"
+        }
+--------------------------------
+       output.tf 
+  output "subnet_id" {
+     value = aws_subnet.my_subnet.id
+   }
+=======================================================
+       aws_sg
+	      main.tf
+      ------------	
+      resource "aws_sg" "allow_tls" {
+	    name = "allow_tls"
+		description = 
+
+
+
+
+resource "aws_security-group" "allow_tls"  {
+    name = "allow_tls"
+    description = "Allow TLS inbound traffic"
+    vpc_id  = aws_vpc.my_vpc.id 
+
+    ingress {
+        description = "TLS from VPC"
+        from_port = 443
+        to_port = 443
+        protocol =  "tcp"
+        cidr_blocks = [aws_vpc.my_vpc.cidr_block]
+    }
+
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_block = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    } 
+     
+    tags = {
+        Name = "allow_tls"
+    }
+}
+=============================================================
+main.tf
+-------
+ module "vpc" {
+   source = "./modules/aws_vpc"
+   vpc_cidr = var.vpc_cidr
+   vpc_name = var.vpc_name
+   }
+ module "subnet" {
+   source = "./module/aws_subnet"
+   vpc_id = var.vpc_name
+   }
+ module "sg" {
+    source = "./module/aws_sg"
+	
+module "vpc" {
+  source   = "./modules/aws_vpc"
+  vpc_cidr = var.vpc_cidr
+  vpc_name = var.vpc_name
+}
+
+module "subnet" {
+  source      = "./modules/aws_subnet"
+  vpc_id      = module.vpc.vpc_id
+  subnet_cidr = var.subnet_cidr
+  subnet_name = var.subnet_name
+}
+
+module "sg" {
+  source  = "./modules/aws_sg"
+  vpc_id  = module.vpc.vpc_id
+  sg_name = var.sg_name
+}
+
+module "nic" {
+  source      = "./modules/aws_nic"
+  subnet_id   = module.subnet.subnet_id
+  nic_name    = var.nic_name
+  private_ips = var.private_ips
+}
+
+module "instance" {
+  source        = "./modules/aws_instance"
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
+}
+
+module "instance_south_2" {
+  source        = "./modules/aws_instance"
+  providers = {
+     aws = aws.south-2
+  }
+  instance_name = var.instance_name
+  instance_ami  = var.instance_ami
+  instance_type = var.instance_type
+  nic_id        = module.nic.nic_id
+}
+-------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+	  

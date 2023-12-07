@@ -1,0 +1,27 @@
+GCP ( regions,zones, network edge locations)
+----
+With 35 regions, 106 zones, 173 network edge locations and 22 subsea cables available to serve customers in over 200 countries and territories,
+Google Cloud's infrastructure supports digital transformations for organizations across the globe
+
+Here are the Big Three as of September 2021:
+
+Amazon Web Service divides into 22 geographic regions and 14 data centers. There are over 114 edge locations and 12 Regional Edge Caches.
+
+Microsoft Azure operates in 54 regions, each with at least three availability zones and 116 edge locations.
+
+Google Cloud Platform comprises 34 cloud regions, 103 zones, and 200 plus edge locations.
+
+Compute Services
+---------------------
+Services	            AWS	                                                   Azure	                       GCP
+IaaS	               Amazon Elastic Compute Cloud	                        Virtual Machines	            Google Compute Engine
+PaaS	               AWS Elastic Beanstalk	                            App Service and Cloud Services	Google App Engine
+Containers	           Amazon Elastic Compute Cloud Container Service	    Azure Kubernetes Service (AKS)	Google Kubernetes Engine
+Serverless Functions   AWS Lambda	                                        Azure Functions	                Google Cloud Functions  
+Storage                EBS, EFS , S3                                        
+
+
+monitoring AWS resources & untilization & cost
+----------
+https://www.cloudzero.com/blog/aws-monitoring
+

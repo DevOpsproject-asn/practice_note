@@ -1,0 +1,46 @@
+aws ec2 ami
+-------------
+
+resource "aws_ami" "example" {
+  name                = "terraform-example"
+  virtualization_type = "hvm"
+  root_device_name    = "/dev/xvda"
+  imds_support        = "v2.0" # Enforce usage of IMDSv2. You can safely remove this line if your application explicitly doesn't support it.
+  ebs_block_device {
+    device_name = "/dev/xvda"
+    snapshot_id = "snap-xxxxxxxx"
+    volume_size = 8
+  }
+}
+
+AWS s3 bucket cration 
+-------------------
+resource "aws_s3_bucket" "example" {
+  bucket = "my-tf-test-bucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+----------------------------
+
+Default VPC
+----------
+resource "aws_default_vpc" "default" {
+  tags = {
+    Name = "Default VPC"
+  }
+}
+
+--------------
+default subnet
+---------------
+resource "aws_default_subnet" "default_az1" {
+  availability_zone = "us-west-2a"
+
+  tags = {
+    Name = "Default subnet for us-west-2a"
+  }
+}
+--------------

@@ -1,0 +1,203 @@
+Azure ( AKS ) Kubernetes Cluster create )
+--------------------------------------------
+Powershell to connect AKS:
+----
+az account set --subscription 4095d52f-346c-4cd6-90c1-732f921909f9
+az aks get-credentials --resource-group AzureAKSproject --name AKSCLUSTER
+
+# List all deployments in all namespaces
+kubectl get deployments --all-namespaces=true
+
+# List all deployments in a specific namespace
+# Format :kubectl get deployments --namespace <namespace-name>
+kubectl get deployments --namespace kube-system
+
+# List details about a specific deployment
+# Format :kubectl describe deployment <deployment-name> --namespace <namespace-name>
+kubectl describe deployment my-dep --namespace kube-system
+
+# List pods using a specific label
+# Format :kubectl get pods -l <label-key>=<label-value> --all-namespaces=true
+kubectl get pods -l app=nginx --all-namespaces=true
+
+# Get logs for all pods with a specific label
+# Format :kubectl logs -l <label-key>=<label-value>
+kubectl logs -l app=nginx --namespace kube-system
+
+
+
+avinna [ ~ ]$ kubectl api-resouces
+error: unknown command "api-resouces" for "kubectl"
+
+Did you mean this?
+        api-resources
+avinna [ ~ ]$ kubectl api-resources
+NAME                              SHORTNAMES          APIVERSION                             NAMESPACED   KIND
+bindings                                              v1                                     true         Binding
+componentstatuses                 cs                  v1                                     false        ComponentStatus
+configmaps                        cm                  v1                                     true         ConfigMap
+endpoints                         ep                  v1                                     true         Endpoints
+events                            ev                  v1                                     true         Event
+limitranges                       limits              v1                                     true         LimitRange
+namespaces                        ns                  v1                                     false        Namespace
+nodes                             no                  v1                                     false        Node
+persistentvolumeclaims            pvc                 v1                                     true         PersistentVolumeClaim
+persistentvolumes                 pv                  v1                                     false        PersistentVolume
+pods                              po                  v1                                     true         Pod
+podtemplates                                          v1                                     true         PodTemplate
+replicationcontrollers            rc                  v1                                     true         ReplicationController
+resourcequotas                    quota               v1                                     true         ResourceQuota
+secrets                                               v1                                     true         Secret
+serviceaccounts                   sa                  v1                                     true         ServiceAccount
+services                          svc                 v1                                     true         Service
+mutatingwebhookconfigurations                         admissionregistration.k8s.io/v1        false        MutatingWebhookConfiguration
+validatingwebhookconfigurations                       admissionregistration.k8s.io/v1        false        ValidatingWebhookConfiguration
+customresourcedefinitions         crd,crds            apiextensions.k8s.io/v1                false        CustomResourceDefinition
+apiservices                                           apiregistration.k8s.io/v1              false        APIService
+controllerrevisions                                   apps/v1                                true         ControllerRevision
+daemonsets                        ds                  apps/v1                                true         DaemonSet
+deployments                       deploy              apps/v1                                true         Deployment
+replicasets                       rs                  apps/v1                                true         ReplicaSet
+statefulsets                      sts                 apps/v1                                true         StatefulSet
+tokenreviews                                          authentication.k8s.io/v1               false        TokenReview
+localsubjectaccessreviews                             authorization.k8s.io/v1                true         LocalSubjectAccessReview
+selfsubjectaccessreviews                              authorization.k8s.io/v1                false        SelfSubjectAccessReview
+selfsubjectrulesreviews                               authorization.k8s.io/v1                false        SelfSubjectRulesReview
+subjectaccessreviews                                  authorization.k8s.io/v1                false        SubjectAccessReview
+horizontalpodautoscalers          hpa                 autoscaling/v2                         true         HorizontalPodAutoscaler
+cronjobs                          cj                  batch/v1                               true         CronJob
+jobs                                                  batch/v1                               true         Job
+certificatesigningrequests        csr                 certificates.k8s.io/v1                 false        CertificateSigningRequest
+leases                                                coordination.k8s.io/v1                 true         Lease
+bgpconfigurations                                     crd.projectcalico.org/v1               false        BGPConfiguration
+bgppeers                                              crd.projectcalico.org/v1               false        BGPPeer
+blockaffinities                                       crd.projectcalico.org/v1               false        BlockAffinity
+caliconodestatuses                                    crd.projectcalico.org/v1               false        CalicoNodeStatus
+clusterinformations                                   crd.projectcalico.org/v1               false        ClusterInformation
+felixconfigurations                                   crd.projectcalico.org/v1               false        FelixConfiguration
+globalnetworkpolicies                                 crd.projectcalico.org/v1               false        GlobalNetworkPolicy
+globalnetworksets                                     crd.projectcalico.org/v1               false        GlobalNetworkSet
+hostendpoints                                         crd.projectcalico.org/v1               false        HostEndpoint
+ipamblocks                                            crd.projectcalico.org/v1               false        IPAMBlock
+ipamconfigs                                           crd.projectcalico.org/v1               false        IPAMConfig
+ipamhandles                                           crd.projectcalico.org/v1               false        IPAMHandle
+ippools                                               crd.projectcalico.org/v1               false        IPPool
+ipreservations                                        crd.projectcalico.org/v1               false        IPReservation
+kubecontrollersconfigurations                         crd.projectcalico.org/v1               false        KubeControllersConfiguration
+networkpolicies                                       crd.projectcalico.org/v1               true         NetworkPolicy
+networksets                                           crd.projectcalico.org/v1               true         NetworkSet
+endpointslices                                        discovery.k8s.io/v1                    true         EndpointSlice
+events                            ev                  events.k8s.io/v1                       true         Event
+flowschemas                                           flowcontrol.apiserver.k8s.io/v1beta3   false        FlowSchema
+prioritylevelconfigurations                           flowcontrol.apiserver.k8s.io/v1beta3   false        PriorityLevelConfiguration
+nodes                                                 metrics.k8s.io/v1beta1                 false        NodeMetrics
+pods                                                  metrics.k8s.io/v1beta1                 true         PodMetrics
+ingressclasses                                        networking.k8s.io/v1                   false        IngressClass
+ingresses                         ing                 networking.k8s.io/v1                   true         Ingress
+networkpolicies                   netpol              networking.k8s.io/v1                   true         NetworkPolicy
+runtimeclasses                                        node.k8s.io/v1                         false        RuntimeClass
+apiservers                                            operator.tigera.io/v1                  false        APIServer
+imagesets                                             operator.tigera.io/v1                  false        ImageSet
+installations                                         operator.tigera.io/v1                  false        Installation
+tigerastatuses                                        operator.tigera.io/v1                  false        TigeraStatus
+poddisruptionbudgets              pdb                 policy/v1                              true         PodDisruptionBudget
+clusterrolebindings                                   rbac.authorization.k8s.io/v1           false        ClusterRoleBinding
+clusterroles                                          rbac.authorization.k8s.io/v1           false        ClusterRole
+rolebindings                                          rbac.authorization.k8s.io/v1           true         RoleBinding
+roles                                                 rbac.authorization.k8s.io/v1           true         Role
+priorityclasses                   pc                  scheduling.k8s.io/v1                   false        PriorityClass
+volumesnapshotclasses             vsclass,vsclasses   snapshot.storage.k8s.io/v1             false        VolumeSnapshotClass
+volumesnapshotcontents            vsc,vscs            snapshot.storage.k8s.io/v1             false        VolumeSnapshotContent
+volumesnapshots                   vs                  snapshot.storage.k8s.io/v1             true         VolumeSnapshot
+csidrivers                                            storage.k8s.io/v1                      false        CSIDriver
+csinodes                                              storage.k8s.io/v1                      false        CSINode
+csistoragecapacities                                  storage.k8s.io/v1                      true         CSIStorageCapacity
+storageclasses                    sc                  storage.k8s.io/v1                      false        StorageClass
+volumeattachments                                     storage.k8s.io/v1                      false        VolumeAttachment
+
+------------kubectl commands ------------------
+--------------------------------------------
+  1  az account set --subscription 4095d52f-346c-4cd6-90c1-732f921909f9
+    2  az aks get-credentials --resource-group AzureAKSproject --name AKSCLUSTER
+    3  az account set --subscription 4095d52f-346c-4cd6-90c1-732f921909f9
+    4  az aks get-credentials --resource-group AzureAKSproject --name AKSCLUSTER
+    5  kubectl get deployments --all namespaces=true
+    6  az account set --subscription 4095d52f-346c-4cd6-90c1-732f921909f9
+    7  az aks get-credentials --resource-group AzureAKSproject --name AKSCLUSTER
+    8  kubectl get deployments --all-namespaces=true
+    9  kubectl get nodes
+   10  kubectl get pods 
+   11  kubectl get pods --all-naspaces=true
+   12  kubectl get pod --all-naspaces=true
+   13  kubectl get --help
+   14  kubectl get pods -l app=nginx --all-namespaces=true
+   15  kubectl get pods --all-namespaces=true
+   16  kubectl get top
+   17  kubectl top
+   18  kubectl top pod
+   19  kubectl top node
+   20  kubectl get pod --all-namespaces=true
+   21  kubectl top pod --all-namespaces=true
+   22  kubectl describe ama-metrics-node-mm9qg 
+   23  kubectl get ns
+   24  kubectl get pods -ns tigera-operator
+   25  kubectl get pods -n tigera-operator
+   26  kubectl get pods -n kube-system
+   27  kubectl top nodes
+   28  kubectl get deployment
+   29  kubectl get deployment --all-namespaces
+   30  kubectl describe pod ama-metrics -n kube-system 
+   31  clear
+   32  ls
+   33  whoami
+   34  uname
+   35  cd /
+   36  ls
+   37  cd ~
+   38  pwd
+   39  clear
+   40  ls
+   41  kubectl get all
+   42  kubectl get svc
+   43  kubectl get ns
+   44  kubectl create namespace test-ns
+   45  kubectl get ns
+   46  kubectl describe ns test-ns
+   47  kubectl api-resouces
+   48  kubectl api-resources
+   49  history
+
+--------------------
+GROUP:      networking.k8s.io
+KIND:       Ingress
+VERSION:    v1
+Ingress is a collection of rules that allow inbound connections to reach the
+    endpoints defined by a backend. An Ingress can be configured to give
+    services externally-reachable urls, load balance traffic, terminate SSL,
+    offer name based virtual hosting etc.
+	
+kubectl create secret tls my-tls-secret --cert=path/to/cert.crt --key=path/to/cert.key
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  tls:
+    - hosts:
+        - your.domain.com
+      secretName: my-tls-secret
+  rules:
+    - host: your.domain.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: your-service-name
+                port:
+                  number: 80
+

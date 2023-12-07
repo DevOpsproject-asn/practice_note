@@ -1,0 +1,158 @@
+Jenkins pipeline ( github + trufflehog + maven + sonar + nexus )
+-----------------
+node {
+    def mavenHome = tool name: "maven3.9.2"
+    stage ('scm checkout'){
+         git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('check-git-secrets'){
+        sh "rm trufflehog"
+        sh "docker pull gesellix/trufflehog"
+        sh "docker run -t gesellix/trufflehog --json https://github.com/cloudtechnoli/maven-web-application.git > trufflehog"
+        sh "cat trufflehog"
+    }
+    stage ('build the code'){
+     sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage ('checkcodequality'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage ('deploytoartificate'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+}
+
+node {
+  def mavenHome = tool name: 'maven3.9.2"
+  stage ('scm checkout'){
+    git credentialsId: 'github', url: 'url'
+	}
+  stage ('build the code'){
+   sh "$mavenHome}/bin/mvn clean package"
+   }
+   stage ('source code check quality'){
+     sh "${mavenHome}/bin/mvn clean sonar:sonar"
+   stage ('deploytoartifactory'){
+     sh "${mavenHome}/bin/mvn clean deploy"
+	 }
+  stage ('docker build'){
+    sh "docker built -t cloudocker123456/javaproject1 ."
+  }
+  stage ('docker login&push'){
+    sh "docker login -u cloudocker123456 -p   
+----------------------------------------------------------------------------------------------------
+K8S  
+---------------------
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 172.31.4.234:6443 --token trkduf.hp9txy8o7fqobx8q \
+        --discovery-token-ca-cert-hash sha256:763b16bb9ff74f8268d88171ce65f8c926b36cbefd01178986fc498e9e884dd7
+kubeadm init --control-plane-endpoint "13.232.239.68:6443"
+
+agent {
+  label 'jenkinsnode1'
+}
+
+crate IAM access key & secrete key
+
+access key - AKIAZSH7PIHFHXFVBD2H
+secrete key - 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
+
+aws cli installation
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+Kubectl package need to install on the jenkins server.
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+chmod +x kubectl
+mkdir -p ~/.local/bin
+mv ./kubectl ~/.local/bin/kubectl
+
+Kubectl version to check
+kubectl version --client
+
+aws configure
+aws eks update-kubeconfig --name Demo-cluster --region ap-south-1 
+
+aws eks update kubeconfig name Demo-cluster region ap-south-1
+aws eks update-kubeconfig --name Demo-cluster --region ap-south-1   ( correct)
+
+aws configure
+---------------------------------------
+
+node {
+    def mavenHome = tool name: "maven3.9.2"
+    stage('scmcheckout'){
+        git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('buildthecode'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('dockerbuild'){
+        sh "docker build -t cloudocker123456/pipeline-eks ."
+    }
+    stage('dockerlogin & push'){
+        withCredentials([string(credentialsId: 'dockerhub_cred', variable: 'dockerhub_cred')]) {
+        sh "docker login -u cloudocker123456 -p ${dockerhub_cred}"
+         }
+        sh "docker push cloudocker123456/pipeline-eks" 
+    }
+    stage('k8sapply'){
+        sh "kubectl apply -f java-web-app-k8s.yaml"
+    }
+}
+-------------------------------------------------------------
+node {
+    def mavenHome = tool name: "maven3.9.2"
+    stage ('scm checkout'){
+         git credentialsId: 'github_cred', url: 'https://github.com/cloudtechnoli/maven-web-application.git'
+    }
+    stage('check-git-secrets'){
+        sh "rm trufflehog"
+        sh "docker pull gesellix/trufflehog"
+        sh "docker run -t gesellix/trufflehog --json https://github.com/cloudtechnoli/maven-web-application.git > trufflehog"
+        sh "cat trufflehog"
+    }
+    stage ('build the code'){
+     sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage ('checkcodequality'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    stage ('deploytoartificate'){
+        sh "${mavenHome}/bin/mvn clean deploy"
+    }
+}
+-----------------------------------------------------
+sudo firewall-cmd --permanent --zone=public --add-service=nfs
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-all
+
+sudo systemctl enable --now nfs-server
+showmount -e
+
+
+aws
+eks update kubeconfig --name Demo-cluster --region ap-south-1

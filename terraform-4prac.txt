@@ -1,0 +1,89 @@
+Ansible with Dynamic inventory
+-----------------------------------
+
+Terraform, Ansible installation and setup in AWS Ec2 REDhat instance.
+
+prerequisite:
+ -------------
+    AWS Account
+	Create Redhat EC2 instance
+	Create IAM Role with Required Policies
+	   VPCFullAccess
+	   EC2FullAccess
+	   S3FullAccess
+    Attach IAM Role to EC2 instance
+
+Create User To Install Ansible & Terraform
+    $sudo useradd ansible
+    $echo "ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/ansible
+ Install Terraform
+  ---------------
+$sudo su ansible
+$sudo yum install wget unzip -y
+$wget https://releases.hashicorp.com/terraform/1.4.6/terraform_1.4.6_linux_386.zip
+$sudo unzip terraform_1.4.6_linux_386.zip -d /usr/local/bin/
+$export PATH=$PATH:/usr/local/bin/
+$vi .bashrc
+    export PATH="$PATH:/usr/local/bin"
+$ source ~/.bashrc
+
+  Install Ansible
+  ---------------
+$sudo su ansible
+$sudo yum install python3
+$sudo alternatives --set python /usr/loacl/bin/python3
+$sudo yum -y install python3-pip -y 
+$pip3 install ansible --user
+$pip3 install boto3 --user
+
+
+
+
+---------------------------
+Terraform script file
+----------------------
+vpc.tf
+------
+provider "aws' {
+   region = "ap-south-1"
+}
+resource "aws_vpc" "k8s_vpc" {
+ cidr_block = var.vpc_cidr
+ tags = {
+    Name = "k8s_vpc'
+	}
+}
+resource "aws_internet_gateway" "k8s_vpc_igw" {
+    vpc_id = aws_vpc.k8s_vpc.id
+    tags = {
+      Name = "k8s_vpc_igw"
+    }
+}
+resource "aws_subnet" "k8s_vpc_subnets" {
+    count         = length(var.subnets-cidr)
+	vpc_id        = aws_vpc.k8s_vpc.id
+	cidr_block    = element(var.subnets_cidr, count.index)
+	availability  = element(var.availability_zones, count.index)
+	map_pubilc_ip_on_launch = true
+	tags = {
+	   Name = "k8s_subnets_${count.index + 1}"
+	}
+}
+
+
+
+
+variables.tf
+---------------
+variable "aws_region" {
+   default = "ap-south-1"
+}
+variable "key_name" {
+   default = 
+	
+
+
+
+
+
+  
